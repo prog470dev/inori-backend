@@ -15,7 +15,7 @@ func main() {
 	r.HandleFunc("/", func (w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Hello, you've requested: %s\n", r.URL.Path)
 	})
-	r.HandleFunc("/reservation", controller.MockHandler).Methods("GET")
+	r.HandleFunc("/reservation", controller.MockHandler).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":6000", r))
 }
