@@ -16,6 +16,7 @@ func MockHandler(w http.ResponseWriter, r *http.Request) {
 	var reservation Reservation
 	if err := json.NewDecoder(r.Body).Decode(&reservation); err != nil {
 		http.Error(w, "http.StatusBadRequest", http.StatusBadRequest)
+		return
 	}
 
 	JSON(w, http.StatusOK, struct {
