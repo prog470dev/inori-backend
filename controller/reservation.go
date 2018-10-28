@@ -1,9 +1,14 @@
 package controller
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 )
+
+type Reserve struct {
+	DB *sql.DB
+}
 
 type Reservation struct {
 	ID       int64   `json:"id"`
