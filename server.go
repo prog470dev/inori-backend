@@ -32,17 +32,33 @@ func (s *Server) Route() *mux.Router {
 	r := mux.NewRouter()
 
 	user := &controller.User{s.db}
-	_ = &controller.Reserve{s.db}
+	driver := &controller.Driver{s.db}
+	offer := &controller.Offer{s.db}
+	_ = &controller.Reservation{s.db}
 
 	// HelloWorld
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Hello, you've requested: %s\n", r.URL.Path)
 	})
-	r.HandleFunc("/reservation", controller.MockHandler).Methods("POST")
 
 	// MySQL接続テスト
 	r.HandleFunc("/user", middle(user.Get)).Methods("GET")
 	r.HandleFunc("/user", middle(user.Post)).Methods("POST")
+
+	/** Ino用モックアップapi **/
+
+	// Driver
+	r.HandleFunc("/drivers/{driver_id:[0-9]+}", middle(driver.GetDriverDetail)).Methods("GET")
+
+	// Rider
+
+	// Offer
+	r.HandleFunc("/offers", middle(offer.GetDriverOffers)).Methods("GET") //クエリパラメータで渡す
+	r.HandleFunc("/offers/{offer_id:[0-9]+}", middle(offer.GetOfferDetail)).Methods("GET")
+	r.HandleFunc("/offers/{offer_id:[0-9]+}", middle(offer.DeleteOffer)).Methods("DELETE")
+	r.HandleFunc("/offers", middle(offer.CreateOffer)).Methods("POST")
+
+	// Reservation
 
 	return r
 }

@@ -4,6 +4,6 @@ import (
 	"database/sql"
 )
 
-type Reservation struct {
+type Rider struct {
 	DB *sql.DB
 }
