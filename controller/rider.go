@@ -17,10 +17,6 @@ func (d *Rider) UpdateRider(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (d *Rider) CreteRider(w http.ResponseWriter, r *http.Request) {
-
-}
-
 func (d *Rider) SignInRider(w http.ResponseWriter, r *http.Request) {
 
 }

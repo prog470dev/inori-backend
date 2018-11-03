@@ -33,19 +33,15 @@ func (s *Server) Init(filename string) {
 func (s *Server) Route() *mux.Router {
 	r := mux.NewRouter()
 
-	user := &controller.User{s.db}
 	driver := &controller.Driver{s.db}
+	rider := &controller.Rider{s.db}
 	offer := &controller.Offer{s.db}
-	_ = &controller.Reservation{s.db}
+	reservation := &controller.Reservation{s.db}
 
 	// HelloWorld
 	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "pong")
 	})
-
-	// MySQL接続テスト
-	r.HandleFunc("/users", middle(user.Get)).Methods("GET")
-	r.HandleFunc("/users", middle(user.Post)).Methods("POST")
 
 	/** Driver **/
 	r.HandleFunc("/drivers/singup", middle(driver.SignUpDriver)).Methods("POST")
@@ -54,6 +50,7 @@ func (s *Server) Route() *mux.Router {
 	r.HandleFunc("/drivers/{driver_id:[0-9]+}", middle(driver.UpdateDriver)).Methods("PUT")
 
 	// Rider
+	r.HandleFunc("/riders/singup", middle(rider.SignUpRider)).Methods("POST")
 
 	// Offer
 	r.HandleFunc("/offers", middle(offer.GetDriverOffers)).Methods("GET") //クエリパラメータで渡す
@@ -62,6 +59,7 @@ func (s *Server) Route() *mux.Router {
 	r.HandleFunc("/offers", middle(offer.CreateOffer)).Methods("POST")
 
 	// Reservation
+	r.HandleFunc("/reservations", middle(reservation.CreateReservation)).Methods("POST")
 
 	return r
 }
