@@ -1,4 +1,4 @@
-package main
+package base
 
 import (
 	"database/sql"
@@ -6,6 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/prog470dev/inori-backend/controller"
+	"github.com/prog470dev/inori-backend/db"
 	"log"
 	"net/http"
 )
@@ -19,12 +20,13 @@ func New() *Server {
 	return &Server{}
 }
 
-func (s *Server) Init() {
-	db, err := sql.Open("mysql", "root:password@tcp(localhost:3306)/ino")
+func (s *Server) Init(filename string) {
+	conf := &db.Config{}
+	dbx, err := conf.Open(filename)
 	if err != nil {
 		return
 	}
-	s.db = db
+	s.db = dbx
 	s.router = s.Route()
 }
 
@@ -37,15 +39,13 @@ func (s *Server) Route() *mux.Router {
 	_ = &controller.Reservation{s.db}
 
 	// HelloWorld
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, you've requested: %s\n", r.URL.Path)
+	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "pong")
 	})
 
 	// MySQL接続テスト
 	r.HandleFunc("/user", middle(user.Get)).Methods("GET")
 	r.HandleFunc("/user", middle(user.Post)).Methods("POST")
-
-	/** Ino用モックアップapi **/
 
 	// Driver
 	r.HandleFunc("/drivers/{driver_id:[0-9]+}", middle(driver.GetDriverDetail)).Methods("GET")
@@ -64,5 +64,5 @@ func (s *Server) Route() *mux.Router {
 }
 
 func (s *Server) Run() {
-	log.Fatal(http.ListenAndServe(":6000", s.router))
+	log.Fatal(http.ListenAndServe(":8080", s.router))
 }
