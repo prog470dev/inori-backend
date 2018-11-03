@@ -6,6 +6,8 @@ import (
 	"testing"
 )
 
+//TODO: modelの関数ごとにテスト関数を分割（その場合dbの使い回しはどうやるのか？）
+
 func TestModelDriver(t *testing.T) {
 	conf := &db.Config{}
 	dbx, err := conf.Open("../dbconfig.yaml") // testの場合は対象ファイルからの相対パス
@@ -46,18 +48,21 @@ func TestModelDriver(t *testing.T) {
 		return
 	}
 
-	//取得（更新確認）
+	// 取得（更新確認）
 	givenDriver, err := DriverOne(dbx, insertedID)
 	if err != nil {
 		t.Fatalf("failed %s", err)
 		return
 	}
-	if givenDriver == nil {
-		t.Fatalf("failed %v", nil)
-		return
-	}
 	if givenDriver.CarColor != "青" {
 		t.Fatalf("expected: %s, actual: %s", "青", givenDriver.CarColor)
+	}
+
+	// 取得（メアド）
+	givenDriver, err = DriverOneWithMail(dbx, "foo@sample.com")
+	if err != nil {
+		t.Fatalf("failed %s", err)
+		return
 	}
 
 	// 削除

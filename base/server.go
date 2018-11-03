@@ -44,11 +44,14 @@ func (s *Server) Route() *mux.Router {
 	})
 
 	// MySQL接続テスト
-	r.HandleFunc("/user", middle(user.Get)).Methods("GET")
-	r.HandleFunc("/user", middle(user.Post)).Methods("POST")
+	r.HandleFunc("/users", middle(user.Get)).Methods("GET")
+	r.HandleFunc("/users", middle(user.Post)).Methods("POST")
 
-	// Driver
+	/** Driver **/
+	r.HandleFunc("/drivers/singup", middle(driver.SignUpDriver)).Methods("POST")
+	r.HandleFunc("/drivers/singin", middle(driver.SignInDriver)).Methods("POST")
 	r.HandleFunc("/drivers/{driver_id:[0-9]+}", middle(driver.GetDriverDetail)).Methods("GET")
+	r.HandleFunc("/drivers/{driver_id:[0-9]+}", middle(driver.UpdateDriver)).Methods("PUT")
 
 	// Rider
 

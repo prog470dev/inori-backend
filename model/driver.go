@@ -36,6 +36,26 @@ func DriverOne(db *sql.DB, id int64) (*Driver, error) {
 	return driver, nil
 }
 
+func DriverOneWithMail(db *sql.DB, mail string) (*Driver, error) {
+	driver := &Driver{}
+
+	if err := db.QueryRow("SELECT * FROM drivers WHERE mail = ? LIMIT 1", mail).Scan(
+		&driver.ID,
+		&driver.FirstName,
+		&driver.LastName,
+		&driver.Grade,
+		&driver.Major,
+		&driver.Mail,
+		&driver.Phone,
+		&driver.CarColor,
+		&driver.CarNumber,
+	); err != nil {
+		return nil, err
+	}
+
+	return driver, nil
+}
+
 func (d *Driver) Update(db *sql.DB) (sql.Result, error) {
 	result, err := db.Exec("UPDATE drivers SET first_name=?, last_name=?, grade=?, major=?, mail=?, phone=?, car_color=?, car_number=? WHERE id = ?",
 		d.FirstName, d.LastName, d.Grade, d.Major, d.Mail, d.Phone, d.CarColor, d.CarNumber, d.ID)

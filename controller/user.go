@@ -27,6 +27,7 @@ func (u *User) Get(w http.ResponseWriter, r *http.Request) {
 func (u *User) Post(w http.ResponseWriter, r *http.Request) {
 	var user model.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
