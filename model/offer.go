@@ -27,10 +27,9 @@ func OfferOne(db *sql.DB, id int64) (*Offer, error) {
 		&offer.Goal,
 		&offer.DepartureTime,
 		&offer.RiderCapacity,
-	); err != nil {
+	); err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}
-	defer db.Close()
 
 	return offer, nil
 }
@@ -42,7 +41,6 @@ func OffersAll(db *sql.DB) ([]Offer, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
 	offers := []Offer{}
 	for rows.Next() {
@@ -71,7 +69,6 @@ func OffersWithDriver(db *sql.DB, driverID int64) ([]Offer, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
 	offers := []Offer{}
 	for rows.Next() {

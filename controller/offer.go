@@ -87,17 +87,22 @@ func (o *Offer) GetDriverOffers(w http.ResponseWriter, r *http.Request) {
 func (o *Offer) GetOfferDetail(w http.ResponseWriter, r *http.Request) {
 	offerID, err := strconv.ParseInt(mux.Vars(r)["offer_id"], 10, 64)
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	offer, err := model.OfferOne(o.DB, offerID)
-	if NotFoundOrErr(w, err) != nil {
+	if err != nil { //該当なしはerr=nil
+		log.Println(err, "A")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	reservations, err := model.ReservationsWithOffer(o.DB, offerID)
-	if NotFoundOrErr(w, err) != nil {
+	if err != nil { //該当なしはerr=nil
+		log.Println(err, "B")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
