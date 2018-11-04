@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/prog470dev/inori-backend/model"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -139,6 +140,7 @@ func (d *Offer) DeleteOffer(w http.ResponseWriter, r *http.Request) {
 func (d *Offer) CreateOffer(w http.ResponseWriter, r *http.Request) {
 	var offer model.Offer
 	if err := json.NewDecoder(r.Body).Decode(&offer); err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

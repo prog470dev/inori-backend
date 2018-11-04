@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/prog470dev/inori-backend/model"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -52,9 +53,9 @@ func (d *Rider) UpdateRider(w http.ResponseWriter, r *http.Request) {
 	}
 
 	JSON(w, http.StatusOK, struct {
-		ID int64 `json:"id"`
+		Rider model.Rider `json:"rider"`
 	}{
-		ID: rider.ID,
+		Rider: rider,
 	})
 }
 
@@ -91,12 +92,14 @@ func (d *Rider) SignUpRider(w http.ResponseWriter, r *http.Request) {
 
 	result, err := rider.Insert(d.DB)
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

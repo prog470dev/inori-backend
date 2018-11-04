@@ -62,7 +62,7 @@ func TestSystemDriver(t *testing.T) {
 		expected_status int
 		expected_body   string
 	}{
-		//// サインアップ
+		// サインアップ
 		//{"POST", "/drivers/singup", `{"id":0,"first_name":"Yamada","last_name":"Taro","grade":"学部4年","major":"電子情報学類","mail":"foo@sample.com","phone":"00000000000","car_color":"赤","car_number":"0000"}`, 200, `{"id":1}`},
 		//// サインイン
 		//{"POST", "/drivers/singin", `{"mail":"foo@sample.com"}`, 200, `{"driver":{"id":1,"first_name":"Yamada","last_name":"Taro","grade":"学部4年","major":"電子情報学類","mail":"foo@sample.com","phone":"00000000000","car_color":"赤","car_number":"0000"}}`},

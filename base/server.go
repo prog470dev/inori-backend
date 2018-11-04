@@ -9,6 +9,7 @@ import (
 	"github.com/prog470dev/inori-backend/db"
 	"log"
 	"net/http"
+	"os"
 )
 
 type Server struct {
@@ -81,5 +82,6 @@ func (s *Server) Route() *mux.Router {
 }
 
 func (s *Server) Run() {
-	log.Fatal(http.ListenAndServe(":8080", s.router))
+	inoPort := os.Getenv("INO_PORT")
+	log.Fatal(http.ListenAndServe(":"+inoPort, s.router))
 }

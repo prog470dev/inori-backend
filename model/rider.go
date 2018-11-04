@@ -60,7 +60,7 @@ func (d *Rider) Update(db *sql.DB) (sql.Result, error) {
 
 func (d *Rider) Insert(db *sql.DB) (sql.Result, error) {
 	result, err := db.Exec("INSERT INTO riders (first_name, last_name, grade, major, mail, phone) values"+
-		" (?, ?, ?, ?, ?, ?, ?, ?) ",
+		" (?, ?, ?, ?, ?, ?) ",
 		d.FirstName, d.LastName, d.Grade, d.Major, d.Mail, d.Phone)
 	if err != nil {
 		return nil, err

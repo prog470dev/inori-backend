@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/prog470dev/inori-backend/model"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -53,9 +54,9 @@ func (d *Driver) UpdateDriver(w http.ResponseWriter, r *http.Request) {
 	}
 
 	JSON(w, http.StatusOK, struct {
-		ID int64 `json:"id"`
+		Driver model.Driver `json:"driver"`
 	}{
-		ID: driver.ID,
+		Driver: driver,
 	})
 }
 
@@ -71,11 +72,8 @@ func (d *Driver) SignInDriver(w http.ResponseWriter, r *http.Request) {
 	}
 
 	driver, err := model.DriverOneWithMail(d.DB, rb.Mail)
-	if err == sql.ErrNoRows {
-		w.WriteHeader(http.StatusBadRequest)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+	if NotFoundOrErr(w, err) != nil {
+		return
 	}
 
 	// サインイン成功
@@ -95,12 +93,14 @@ func (d *Driver) SignUpDriver(w http.ResponseWriter, r *http.Request) {
 
 	result, err := driver.Insert(d.DB)
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
