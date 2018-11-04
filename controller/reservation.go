@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/prog470dev/inori-backend/model"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -42,23 +43,29 @@ func (d *Reservation) GetRiderOffers(w http.ResponseWriter, r *http.Request) {
 func (d *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request) {
 	var reservation model.Reservation
 	if err := json.NewDecoder(r.Body).Decode(&reservation); err != nil {
+		log.Println(err, "A")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	reservations, err := model.ReservationsWithOffer(d.DB, reservation.OfferID)
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil && err != sql.ErrNoRows { // 予約がないのはOK
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	// 存在しないOfferはエラー
 	offer, err := model.OfferOne(d.DB, reservation.OfferID)
 	if NotFoundOrErr(w, err) != nil {
+		log.Println(err, "B")
 		return
 	}
 
 	// 満員（クライアント側の同期がリアルタイムやられていれば基本発生しない）
 	if len(reservations) == int(offer.RiderCapacity) {
 		//TODO: 満員であることを伝えるエラー
+		log.Println(len(reservations), int(offer.RiderCapacity))
+		log.Println(err, "C")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
