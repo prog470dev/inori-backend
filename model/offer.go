@@ -6,12 +6,13 @@ import (
 )
 
 type Offer struct {
-	ID            int64     `db:"id" json:"id"`
-	DriverID      int64     `db:"driver_id" json:"driver_id"`
-	Start         string    `db:"start" json:"start"`
-	Goal          string    `db:"goal" json:"goal"`
-	DepartureTime time.Time `db:"departure_time" json:"departure_time"` //use TimeLayout
-	RiderCapacity int64     `db:"rider_capacity" json:"rider_capacity"`
+	ID       int64  `db:"id" json:"id"`
+	DriverID int64  `db:"driver_id" json:"driver_id"`
+	Start    string `db:"start" json:"start"`
+	Goal     string `db:"goal" json:"goal"`
+	//DepartureTime time.Time `db:"departure_time" json:"departure_time"` //use TimeLayout
+	DepartureTime string `db:"departure_time" json:"departure_time"`
+	RiderCapacity int64  `db:"rider_capacity" json:"rider_capacity"`
 }
 
 func OfferOne(db *sql.DB, id int64) (*Offer, error) {
