@@ -59,7 +59,6 @@ func DriverOneWithMail(db *sql.DB, mail string) (*Driver, error) {
 func (d *Driver) Update(db *sql.DB) (sql.Result, error) {
 	result, err := db.Exec("UPDATE drivers SET first_name=?, last_name=?, grade=?, major=?, mail=?, phone=?, car_color=?, car_number=? WHERE id = ?",
 		d.FirstName, d.LastName, d.Grade, d.Major, d.Mail, d.Phone, d.CarColor, d.CarNumber, d.ID)
-
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +70,6 @@ func (d *Driver) Insert(db *sql.DB) (sql.Result, error) {
 	result, err := db.Exec("INSERT INTO drivers (first_name, last_name, grade, major, mail, phone, car_color, car_number) values"+
 		" (?, ?, ?, ?, ?, ?, ?, ?) ",
 		d.FirstName, d.LastName, d.Grade, d.Major, d.Mail, d.Phone, d.CarColor, d.CarNumber)
-
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +79,6 @@ func (d *Driver) Insert(db *sql.DB) (sql.Result, error) {
 
 func (d *Driver) Delete(db *sql.DB) (sql.Result, error) {
 	result, err := db.Exec("DELETE FROM drivers WHERE id = ?", d.ID)
-
 	if err != nil {
 		return nil, err
 	}

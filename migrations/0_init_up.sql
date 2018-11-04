@@ -11,7 +11,7 @@ CREATE TABLE drivers (
     phone VARCHAR(255) NOT NULL,
     car_color VARCHAR(255) NOT NULL,
     car_number VARCHAR(255) NOT NULL,
-    PRIMARY KEY (ID)
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE riders (
@@ -22,7 +22,7 @@ CREATE TABLE riders (
     major VARCHAR(255) NOT NULL,
     mail VARCHAR(255) NOT NULL,
     phone VARCHAR(255) NOT NULL,
-    PRIMARY KEY (ID)
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE offers (
@@ -30,10 +30,10 @@ CREATE TABLE offers (
     driver_id INT NOT NULL,
     start VARCHAR(255) NOT NULL,
     goal VARCHAR(255) NOT NULL,
-    depature_time DATETIME NOT NULL,
+    departure_time DATETIME NOT NULL,
     rider_capacity INT NOT NULL,
     FOREIGN KEY(driver_id) REFERENCES drivers (id),
-    PRIMARY KEY (ID)
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE reservations (
@@ -42,5 +42,5 @@ CREATE TABLE reservations (
     rider_id INT NOT NULL,
     FOREIGN KEY(offer_id) REFERENCES offers (id),
     FOREIGN KEY(rider_id) REFERENCES riders (id),
-    PRIMARY KEY (ID)
+    PRIMARY KEY (id)
 );
