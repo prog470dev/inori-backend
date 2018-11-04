@@ -43,7 +43,6 @@ func (d *Reservation) GetRiderOffers(w http.ResponseWriter, r *http.Request) {
 func (d *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request) {
 	var reservation model.Reservation
 	if err := json.NewDecoder(r.Body).Decode(&reservation); err != nil {
-		log.Println(err, "A")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -57,7 +56,6 @@ func (d *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request) 
 	// 存在しないOfferはエラー
 	offer, err := model.OfferOne(d.DB, reservation.OfferID)
 	if NotFoundOrErr(w, err) != nil {
-		log.Println(err, "B")
 		return
 	}
 
@@ -65,7 +63,6 @@ func (d *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request) 
 	if len(reservations) == int(offer.RiderCapacity) {
 		//TODO: 満員であることを伝えるエラー
 		log.Println(len(reservations), int(offer.RiderCapacity))
-		log.Println(err, "C")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

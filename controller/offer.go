@@ -114,8 +114,8 @@ func (o *Offer) GetOfferDetail(w http.ResponseWriter, r *http.Request) {
 
 	// 予約中のライダーのリスト作成
 	riders := []int64{}
-	for _, rider := range reservations {
-		riders = append(riders, rider.ID)
+	for _, reservation := range reservations {
+		riders = append(riders, reservation.RiderID)
 	}
 
 	// 時間文字列の変換
