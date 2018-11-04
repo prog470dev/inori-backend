@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 )
 
 type Offer struct {
@@ -70,16 +71,17 @@ func (o *Offer) GetDriverOffers(w http.ResponseWriter, r *http.Request) {
 		}
 
 		//TODO: 時刻のフォーマット修正（現在借り実装）=> 関数で切り出し
-		//const TimeLayout = "2019-10-04T10:07:35Z"
-		//t, err := time.Parse(TimeLayout, off.DepartureTime)
-		//if err != nil {
-		//	log.Println(err)
-		//	w.WriteHeader(http.StatusInternalServerError)
-		//	return
-		//}
-		//const TimeLayout2 = "2006-01-02 15:04:05"
-		//tstr := t.Format(TimeLayout2)
-		//off.DepartureTime = tstr
+		const TimeLayout = time.RFC3339
+		t, err := time.Parse(TimeLayout, off.DepartureTime)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		const TimeLayout2 = "2006-01-02 15:04:05"
+		tstr := t.Format(TimeLayout2)
+		off.DepartureTime = tstr
+		//
 
 		resp := OfferResp{
 			Offer:          off,
