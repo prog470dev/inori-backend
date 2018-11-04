@@ -27,7 +27,7 @@ func OfferOne(db *sql.DB, id int64) (*Offer, error) {
 		&offer.Goal,
 		&offer.DepartureTime,
 		&offer.RiderCapacity,
-	); err != nil && err != sql.ErrNoRows {
+	); err != nil {
 		return nil, err
 	}
 

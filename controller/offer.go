@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"time"
 )
 
 type Offer struct {
@@ -70,18 +69,13 @@ func (o *Offer) GetDriverOffers(w http.ResponseWriter, r *http.Request) {
 			riders = append(riders, reservation.RiderID)
 		}
 
-		//TODO: 時刻のフォーマット修正（現在借り実装）=> 関数で切り出し
-		const TimeLayout = time.RFC3339
-		t, err := time.Parse(TimeLayout, off.DepartureTime)
+		// 時間文字列の変換
+		t, err := SwitchTimeStrStyle(off.DepartureTime)
 		if err != nil {
-			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		const TimeLayout2 = "2006-01-02 15:04:05"
-		tstr := t.Format(TimeLayout2)
-		off.DepartureTime = tstr
-		//
+		off.DepartureTime = t
 
 		resp := OfferResp{
 			Offer:          off,
@@ -107,15 +101,13 @@ func (o *Offer) GetOfferDetail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offer, err := model.OfferOne(o.DB, offerID)
-	if err != nil { //該当なしはerr=nil
-		log.Println(err, "A")
-		w.WriteHeader(http.StatusInternalServerError)
+	if NotFoundOrErr(w, err) != nil {
+		log.Println(err)
 		return
 	}
 
 	reservations, err := model.ReservationsWithOffer(o.DB, offerID)
-	if err != nil { //該当なしはerr=nil
-		log.Println(err, "B")
+	if err != nil { //該当なしはerr=nil (通す)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -125,6 +117,14 @@ func (o *Offer) GetOfferDetail(w http.ResponseWriter, r *http.Request) {
 	for _, rider := range reservations {
 		riders = append(riders, rider.ID)
 	}
+
+	// 時間文字列の変換
+	t, err := SwitchTimeStrStyle(offer.DepartureTime)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	offer.DepartureTime = t
 
 	JSON(w, http.StatusOK, struct {
 		Offer          model.Offer `json:"offer"`
