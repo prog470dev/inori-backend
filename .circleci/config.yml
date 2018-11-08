@@ -8,8 +8,9 @@ jobs:
       # specify the version
       - image: circleci/golang:1.9
       - image: circleci/mysql:5.7
-        environment:
-        - MYSQL_ROOT_PASSWORD=password
+#        environment:
+#        - MYSQL_ROOT_PASSWORD=password
+#        - MYSQL_ROOT_HOST: '%'
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -28,4 +29,4 @@ jobs:
       # specify any bash command here prefixed with `run: `
       - run: go get -v -t -d ./...
       - run: go test -v ./...
-      - run: mysql --version
+      - run: pwd
