@@ -7,6 +7,9 @@ jobs:
     docker:
       # specify the version
       - image: circleci/golang:1.9
+      - image: mysql:5.7
+        environment:
+        - MYSQL_ROOT_PASSWORD=password
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -25,3 +28,4 @@ jobs:
       # specify any bash command here prefixed with `run: `
       - run: go get -v -t -d ./...
       - run: go test -v ./...
+      - run: mysql --version
