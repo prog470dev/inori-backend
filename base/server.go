@@ -45,18 +45,18 @@ func (s *Server) Route() *mux.Router {
 	})
 
 	/** Driver: サインアップ **/
-	r.HandleFunc("/drivers/singup", middle(driver.SignUpDriver)).Methods("POST")
+	r.HandleFunc("/drivers/signup", middle(driver.SignUpDriver)).Methods("POST")
 	/** Driver: サインイン **/
-	r.HandleFunc("/drivers/singin", middle(driver.SignInDriver)).Methods("POST")
+	r.HandleFunc("/drivers/signin", middle(driver.SignInDriver)).Methods("POST")
 	/** Driver: 詳細 **/
 	r.HandleFunc("/drivers/{driver_id:[0-9]+}", middle(driver.GetDriverDetail)).Methods("GET")
 	/** Driver: 更新 **/
 	r.HandleFunc("/drivers/{driver_id:[0-9]+}", middle(driver.UpdateDriver)).Methods("PUT")
 
 	/** Rider: サインアップ **/
-	r.HandleFunc("/riders/singup", middle(rider.SignUpRider)).Methods("POST")
+	r.HandleFunc("/riders/signup", middle(rider.SignUpRider)).Methods("POST")
 	/** Rider: サインイン **/
-	r.HandleFunc("/riders/singin", middle(rider.SignInRider)).Methods("POST")
+	r.HandleFunc("/riders/signin", middle(rider.SignInRider)).Methods("POST")
 	/** Rider: 詳細 **/
 	r.HandleFunc("/riders/{rider_id:[0-9]+}", middle(rider.GetRiderDetail)).Methods("GET")
 	/** Rider: 更新 **/
