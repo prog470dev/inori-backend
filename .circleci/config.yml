@@ -32,8 +32,6 @@ jobs:
       # specify any bash command here prefixed with `run: `
       - run: go get -v -t -d ./...
       - run: go test -v ./...
-      - run: pwd
-      - run: ls
-      - run: sudo apt install -y mysql-client
-      - run: mysql -h 127.0.0.1 -u root -e "create database mate;"
-      - run: mysql --version
+#      - run: sudo apt install -y mysql-client
+#      - run: mysql -h 127.0.0.1 -u root -e "create database mate;"
+#      - run: mysql --version

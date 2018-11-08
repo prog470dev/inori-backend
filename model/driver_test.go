@@ -1,17 +1,22 @@
 package model
 
 import (
+	"fmt"
+	"github.com/prog470dev/inori-backend/db"
 	"testing"
 )
 
 //TODO: modelの関数ごとにテスト関数を分割（その場合dbの使い回しはどうやるのか？）
 
 func TestModelDriver(t *testing.T) {
-	//conf := &db.Config{}
-	//dbx, err := conf.Open("../dbconfig.yaml") // testの場合は対象ファイルからの相対パス
-	//if err != nil {
-	//	t.Fatalf("failed %s", err)
-	//}
+	conf := &db.Config{}
+	dbx, err := conf.Open("../dbconfig.yaml") // testの場合は対象ファイルからの相対パス
+	if err != nil {
+		t.Fatalf("failed %s", err)
+	}
+
+	fmt.Println(dbx)
+
 	//
 	//driver := &Driver{
 	//	ID:        0,
