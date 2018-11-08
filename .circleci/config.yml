@@ -7,10 +7,12 @@ jobs:
     docker:
       # specify the version
       - image: circleci/golang:1.9
-      - image: circleci/mysql:5.7
-#        environment:
-#        - MYSQL_ROOT_PASSWORD=password
-#        - MYSQL_ROOT_HOST: '%'
+#      - image: circleci/mysql:5.7
+      - image: mysql:5.7
+        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_bin --innodb-large-prefix=true --innodb-file-format=Barracuda
+        environment:
+          MYSQL_USER: root
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -30,3 +32,5 @@ jobs:
       - run: go get -v -t -d ./...
       - run: go test -v ./...
       - run: pwd
+      - run: ls
+      - run: mysql  -h 127.0.0.1 -u root -e "create database mate;"
