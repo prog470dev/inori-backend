@@ -39,5 +39,10 @@ jobs:
           command: echo ${SSH_KEY} >> ~/.ssh/known_hosts
 #      - run: echo "User tshimizu" >> $HOME/.ssh/config
 #      - run: echo "ForwardAgent yes" >> $HOME/.ssh/config
-      - run: scp -o "StrictHostKeyChecking=no" README.md tshimizu@118.27.33.104:./
-      - run: ssh -o "StrictHostKeyChecking=no" tshimizu@118.27.33.104 rm README.md
+      - run: GOOS=linux GOARCH=amd64 go build -o ino.out
+      - run: mkdir Ino
+      - run: cp dbconfig.yml Ino && cp -r migrations Ino && cp ino.out Ino
+      - run: scp -o "StrictHostKeyChecking=no" -r Ino tshimizu@118.27.33.104:./
+      - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh tshimizu@118.27.33.104:./
+      - run: ssh -o "StrictHostKeyChecking=no" shimizu@118.27.33.104 ./deploy.sh
+
