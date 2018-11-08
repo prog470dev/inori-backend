@@ -32,9 +32,9 @@ jobs:
       #- run: chmod 777 dbconfig.yml && chmod -R 777 migrations && chmod 777 ino.out
       - run: cp dbconfig.yml Ino && cp -r migrations Ino && cp ino.out Ino
       - run: chmod -R 777 Ino
-      - run: ls -l Ino
-      - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml tshimizu@118.27.33.104:./
-      - run: scp -o "StrictHostKeyChecking=no" -r Ino tshimizu@118.27.33.104:./
+#      - run: ls -l Ino
+#      - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml tshimizu@118.27.33.104:./
+      - run: scp -o "StrictHostKeyChecking=no" -r Ino/ tshimizu@118.27.33.104:./
       - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh tshimizu@118.27.33.104:./
       - run: ssh -o "StrictHostKeyChecking=no" shimizu@118.27.33.104 ./deploy.sh
 
