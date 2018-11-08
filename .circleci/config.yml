@@ -17,7 +17,6 @@ jobs:
     working_directory: /go/src/github.com/prog470dev/inori-backend
     steps:
       - checkout
-
       # specify any bash command here prefixed with `run: `
       - run: go get -v -t -d ./...
       - run: go test -v ./...
@@ -29,9 +28,8 @@ jobs:
           command: echo ${SSH_KEY} >> ~/.ssh/known_hosts
       - run: GOOS=linux GOARCH=amd64 go build -o ino.out
       - run: mkdir Ino
-      - run: chmod 777 dbconfig.yml && chmod -R 777 migrations migrations && chmod 777 ino.out
       - run: cp dbconfig.yml Ino && cp -r migrations Ino && cp ino.out Ino
-      - run: scp -o "StrictHostKeyChecking=no" -r Ino tshimizu@118.27.33.104:./
-      - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh tshimizu@118.27.33.104:./
-      - run: ssh -o "StrictHostKeyChecking=no" shimizu@118.27.33.104 ./deploy.sh
+      - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml ${SSH_USER}@${SSH_HOST}:./
+      - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh ${SSH_USER}@${SSH_HOST}:./
+      - run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "chmod 755 deploy.sh && nohup ./deploy.sh >/dev/null 2>&1 </dev/null &"
 
