@@ -37,6 +37,7 @@ jobs:
 #      - run: sudo apt-get install rsync
 #      - run: rsync -avz --delete . tshimizu@118.27.33.104:./Ino
 #      - run: scp -o "StrictHostKeyChecking=no" -r Ino/ tshimizu@118.27.33.104:./
+      - run: chmod 755 .circleci/deploy.sh
       - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh tshimizu@118.27.33.104:./
       - run: ssh -o "StrictHostKeyChecking=no" tshimizu@118.27.33.104 ./deploy.sh
 
