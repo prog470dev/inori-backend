@@ -9,7 +9,7 @@ import (
 
 func defaultServer() *Server {
 	s := New()
-	s.Init("../dbconfig.yaml") // testの場合は対象ファイルからの相対パス
+	s.Init("../dbconfig.yml") // testの場合は対象ファイルからの相対パス
 	return s
 }
 

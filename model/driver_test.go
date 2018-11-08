@@ -10,7 +10,7 @@ import (
 
 func TestModelDriver(t *testing.T) {
 	conf := &db.Config{}
-	dbx, err := conf.Open("../dbconfig.yaml") // testの場合は対象ファイルからの相対パス
+	dbx, err := conf.Open("../dbconfig.yml") // testの場合は対象ファイルからの相対パス
 	if err != nil {
 		t.Fatalf("failed %s", err)
 	}
