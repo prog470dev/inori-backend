@@ -37,4 +37,4 @@ jobs:
                   - "60:1d:96:93:28:03:f0:9f:9a:3c:e7:35:37:94:a6:71"
       - run: echo "User tshimizu" >> $HOME/.ssh/config
       - run: echo "ForwardAgent yes" >> $HOME/.ssh/config
-      - run scp README.md tshimizu@118.27.33.104:./
+      - run: scp README.md tshimizu@118.27.33.104:./
