@@ -40,4 +40,6 @@ jobs:
           command: echo ${SSH_KEY} >> ~/.ssh/known_hosts
       - run: echo "User tshimizu" >> $HOME/.ssh/config
       - run: echo "ForwardAgent yes" >> $HOME/.ssh/config
+      - run: echo ${SSH_KEY}
+      - run: echo $HOME
       - run: scp -o "StrictHostKeyChecking=no" README.md tshimizu@118.27.33.104:./
