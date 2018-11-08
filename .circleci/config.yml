@@ -19,6 +19,7 @@ jobs:
       - checkout
 
       # specify any bash command here prefixed with `run: `
+      - run: echo ${SSH_HOST}
       - run: go get -v -t -d ./...
       - run: go test -v ./...
       - add_ssh_keys:
@@ -32,5 +33,5 @@ jobs:
       - run: cp dbconfig.yml Ino && cp -r migrations Ino && cp ino.out Ino
       - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml tshimizu@118.27.33.104:./
       - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh tshimizu@118.27.33.104:./
-      - run: ssh -o "StrictHostKeyChecking=no" tshimizu@118.27.33.104 "chmod 755 deploy.sh && ./deploy.sh"
+      - run: ssh -o "StrictHostKeyChecking=no" tshimizu@118.27.33.104 "chmod 755 deploy.sh && nohup ./deploy.sh &"
 
