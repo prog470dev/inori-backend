@@ -43,3 +43,4 @@ jobs:
       - run: cat ~/.ssh/known_hosts
       - run: cat $HOME/.ssh/config
       - run: scp -o "StrictHostKeyChecking=no" README.md tshimizu@118.27.33.104:./
+      - run: ssh -o "StrictHostKeyChecking=no" tshimizu@118.27.33.104:./ rm README.md
