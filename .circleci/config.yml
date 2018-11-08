@@ -7,8 +7,7 @@ jobs:
     docker:
       # specify the version
       - image: circleci/golang:1.9
-#      - image: circleci/mysql:5.7
-      - image: mysql:5.7
+      - image: circleci/mysql:5.7
         command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_bin --innodb-large-prefix=true --innodb-file-format=Barracuda
         environment:
           MYSQL_USER: root
@@ -38,9 +37,7 @@ jobs:
       - run:
           name: ssh-key
           command: echo ${SSH_KEY} >> ~/.ssh/known_hosts
-      - run: echo "User tshimizu" >> $HOME/.ssh/config
-      - run: echo "ForwardAgent yes" >> $HOME/.ssh/config
-      - run: cat ~/.ssh/known_hosts
-      - run: cat $HOME/.ssh/config
+#      - run: echo "User tshimizu" >> $HOME/.ssh/config
+#      - run: echo "ForwardAgent yes" >> $HOME/.ssh/config
       - run: scp -o "StrictHostKeyChecking=no" README.md tshimizu@118.27.33.104:./
       - run: ssh -o "StrictHostKeyChecking=no" tshimizu@118.27.33.104 rm README.md
