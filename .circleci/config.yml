@@ -29,12 +29,8 @@ jobs:
           command: echo ${SSH_KEY} >> ~/.ssh/known_hosts
       - run: GOOS=linux GOARCH=amd64 go build -o ino.out
       - run: mkdir Ino
-      #- run: chmod 777 dbconfig.yml && chmod -R 777 migrations && chmod 777 ino.out
       - run: cp dbconfig.yml Ino && cp -r migrations Ino && cp ino.out Ino
-#      - run: chmod -R 777 Ino
       - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml tshimizu@118.27.33.104:./
-#      - run: cd Ino
       - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh tshimizu@118.27.33.104:./
-      - run: ssh -o "StrictHostKeyChecking=no" tshimizu@118.27.33.104 ls -l
-      - run: ssh -o "StrictHostKeyChecking=no" tshimizu@118.27.33.104 chmod 755 deploy.sh && ./deploy.sh
+      - run: ssh -o "StrictHostKeyChecking=no" tshimizu@118.27.33.104 chmod 755 deploy.sh && deploy.sh
 
