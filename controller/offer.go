@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"sort"
 	"strconv"
 )
 
@@ -29,7 +30,7 @@ type OfferResp struct {
 	//ReservedRiders []model.Rider `json:"reserved_riders"`
 }
 
-func (o *Offer) GetDriverOffers(w http.ResponseWriter, r *http.Request) {
+func (o *Offer) GetOffers(w http.ResponseWriter, r *http.Request) {
 	u, err := url.Parse(r.URL.RequestURI())
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -55,6 +56,9 @@ func (o *Offer) GetDriverOffers(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
+	//TODO: Offerの時系列順ソート
+	sort.Sort(model.TimedOffer(offers))
 
 	resps := []OfferResp{}
 	for _, off := range offers {

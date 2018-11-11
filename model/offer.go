@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql"
+	"log"
 	"time"
 )
 
@@ -13,6 +14,26 @@ type Offer struct {
 	//DepartureTime time.Time `db:"departure_time" json:"departure_time"` //use TimeLayout
 	DepartureTime string `db:"departure_time" json:"departure_time"`
 	RiderCapacity int64  `db:"rider_capacity" json:"rider_capacity"`
+}
+
+type TimedOffer []Offer // 時系列ソートのための型
+
+func (to TimedOffer) Len() int {
+	return len(to)
+}
+
+func (to TimedOffer) Less(i, j int) bool {
+	ti, err := time.Parse(time.RFC3339, to[i].DepartureTime)
+	tj, err := time.Parse(time.RFC3339, to[j].DepartureTime)
+
+	//TODO: パースエラーの処理
+	log.Println(err)
+
+	return ti.Before(tj)
+}
+
+func (to TimedOffer) Swap(i, j int) {
+	to[i], to[j] = to[j], to[i]
 }
 
 func OfferOne(db *sql.DB, id int64) (*Offer, error) {

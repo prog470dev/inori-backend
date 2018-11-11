@@ -65,7 +65,7 @@ func (s *Server) Route() *mux.Router {
 	/** Offer: 追加**/
 	r.HandleFunc("/offers", middle(offer.CreateOffer)).Methods("POST")
 	/** Offer: 一覧（全て/選択ドライバ）**/
-	r.HandleFunc("/offers", middle(offer.GetDriverOffers)).Methods("GET") //クエリパラメータで渡す
+	r.HandleFunc("/offers", middle(offer.GetOffers)).Methods("GET") //クエリパラメータで渡す
 	/** Offer: 詳細 **/
 	r.HandleFunc("/offers/{offer_id:[0-9]+}", middle(offer.GetOfferDetail)).Methods("GET")
 	/** Offer: 削除 **/
