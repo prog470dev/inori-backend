@@ -1,11 +1,27 @@
 package model
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 type Reservation struct {
 	ID      int64 `db:"id" json:"id"`
 	OfferID int64 `db:"offer_id" json:"offer_id"`
 	RiderID int64 `db:"rider_id" json:"rider_id"`
+}
+
+func ReservationOne(db *sql.DB, id int64) (*Reservation, error) {
+	reservation := &Reservation{}
+
+	if err := db.QueryRow("SELECT * FROM reservations WHERE id = ? LIMIT 1", id).Scan(
+		&reservation.ID,
+		&reservation.OfferID,
+		&reservation.RiderID,
+	); err != nil {
+		return nil, err
+	}
+
+	return reservation, nil
 }
 
 func ReservationsWithRider(db *sql.DB, riderID int64) ([]Reservation, error) {

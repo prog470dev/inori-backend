@@ -93,8 +93,13 @@ func (d *Reservation) CancelReservation(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	reservation := model.Reservation{}
-	reservation.ID = reservationID
+	reservation := &model.Reservation{}
+	// delete文は対象レコードの有無に関する情報は返さないため、事前にselectを実行
+	reservation, err = model.ReservationOne(d.DB, reservationID)
+	if NotFoundOrErr(w, err) != nil {
+		return
+	}
+
 	_, err = reservation.Delete(d.DB)
 	if NotFoundOrErr(w, err) != nil {
 		return

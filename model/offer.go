@@ -34,6 +34,23 @@ func OfferOne(db *sql.DB, id int64) (*Offer, error) {
 	return offer, nil
 }
 
+func OfferOneWithoutTime(db *sql.DB, id int64) (*Offer, error) {
+	offer := &Offer{}
+
+	if err := db.QueryRow("SELECT * FROM offers WHERE id = ? LIMIT 1", id).Scan(
+		&offer.ID,
+		&offer.DriverID,
+		&offer.Start,
+		&offer.Goal,
+		&offer.DepartureTime,
+		&offer.RiderCapacity,
+	); err != nil {
+		return nil, err
+	}
+
+	return offer, nil
+}
+
 func OffersAll(db *sql.DB) ([]Offer, error) {
 	currentTime := time.Now()
 

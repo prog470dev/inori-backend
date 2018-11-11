@@ -137,32 +137,40 @@ func (o *Offer) GetOfferDetail(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (d *Offer) DeleteOffer(w http.ResponseWriter, r *http.Request) {
+// 注意：取得系のAPIは時間外のものはヒットしないが、削除系はヒットする。
+// （理由は、ユーザ側の情報が古く、時間外のOfferが見えているときに削除できなくなるため。）
+func (o *Offer) DeleteOffer(w http.ResponseWriter, r *http.Request) {
 	offerID, err := strconv.ParseInt(mux.Vars(r)["offer_id"], 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	offer := model.Offer{}
-	offer.ID = offerID
-
-	_, err = model.DeleteOfferReservation(d.DB, int(offer.ID))
+	offer := &model.Offer{}
+	// delete文は対象レコードの有無に関する情報は返さないため、事前にselectを実行
+	offer, err = model.OfferOneWithoutTime(o.DB, offerID)
+	log.Println(err)
 	if NotFoundOrErr(w, err) != nil {
 		log.Println(err)
 		return
 	}
 
-	_, err = offer.Delete(d.DB)
+	// 関連reservationの削除
+	_, err = model.DeleteOfferReservation(o.DB, int(offer.ID))
+	if err != nil && err != sql.ErrNoRows {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_, err = offer.Delete(o.DB)
 	if NotFoundOrErr(w, err) != nil {
-		log.Println(err)
 		return
 	}
 
 	JSON(w, http.StatusOK, struct {
 		ID int64 `json:"id"`
 	}{
-		ID: offerID,
+		ID: offer.ID,
 	})
 }
 
