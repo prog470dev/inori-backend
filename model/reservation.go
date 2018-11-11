@@ -49,10 +49,22 @@ func (r *Reservation) Delete(db *sql.DB) (sql.Result, error) {
 	return result, nil
 }
 
+func DeleteOfferReservation(db *sql.DB, offer_id int) (sql.Result, error) {
+	result, err := db.Exec("DELETE FROM reservations WHERE offer_id = ?", offer_id)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 // オファーの予約
 func ReservationsWithOffer(db *sql.DB, offerID int64) ([]*Reservation, error) {
 	rows, err := db.Query("SELECT * FROM reservations WHERE offer_id = ?", offerID)
-	if err != nil && err != sql.ErrNoRows { //予約がないのは問題ない.
+	if err == sql.ErrNoRows {
+		return []*Reservation{}, nil
+	}
+	if err != nil {
 		return nil, err
 	}
 

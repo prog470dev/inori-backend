@@ -108,6 +108,7 @@ func (o *Offer) GetOfferDetail(w http.ResponseWriter, r *http.Request) {
 
 	reservations, err := model.ReservationsWithOffer(o.DB, offerID)
 	if err != nil { //該当なしはerr=nil (通す)
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -121,6 +122,7 @@ func (o *Offer) GetOfferDetail(w http.ResponseWriter, r *http.Request) {
 	// 時間文字列の変換
 	t, err := SwitchTimeStrStyle(offer.DepartureTime)
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -144,8 +146,16 @@ func (d *Offer) DeleteOffer(w http.ResponseWriter, r *http.Request) {
 
 	offer := model.Offer{}
 	offer.ID = offerID
+
+	_, err = model.DeleteOfferReservation(d.DB, int(offer.ID))
+	if NotFoundOrErr(w, err) != nil {
+		log.Println(err)
+		return
+	}
+
 	_, err = offer.Delete(d.DB)
 	if NotFoundOrErr(w, err) != nil {
+		log.Println(err)
 		return
 	}
 
