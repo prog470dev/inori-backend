@@ -75,6 +75,12 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 	if len(reservations) == int(offer.RiderCapacity) {
 		log.Println(len(reservations), int(offer.RiderCapacity))
 		w.WriteHeader(http.StatusBadRequest) //TODO: 満員であることを伝えるボディを返す
+
+		JSON(w, http.StatusOK, struct {
+			Message string `json:"message"`
+		}{
+			Message: "no capacity",
+		})
 		return
 	}
 
