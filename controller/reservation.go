@@ -33,6 +33,16 @@ func (re *Reservation) GetRiderOffers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 時間文字列の変換
+	for _, reserve := range reservations {
+		t, err := SwitchTimeStrStyle(reserve.DepartureTime)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		reserve.DepartureTime = t
+	}
+
 	JSON(w, http.StatusOK, struct {
 		Reservations []model.Reservation `json:"reservations"`
 	}{
@@ -65,6 +75,12 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 	if len(reservations) == int(offer.RiderCapacity) {
 		log.Println(len(reservations), int(offer.RiderCapacity))
 		w.WriteHeader(http.StatusBadRequest) //TODO: 満員であることを伝えるボディを返す
+
+		JSON(w, http.StatusOK, struct {
+			Message string `json:"message"`
+		}{
+			Message: "no capacity",
+		})
 		return
 	}
 
@@ -78,6 +94,26 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 	}
 
 	id, err := result.LastInsertId()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	//プッシュ通知 (ドライバ向け)
+	token, err := model.TokenOneDriver(re.DB, offer.DriverID)
+	if err != nil {
+		NotFoundOrErr(w, err)
+		return
+	}
+	pushData := &PushData{
+		To:          token.PushToken,
+		Type:        "reserved_offer",
+		OfferID:     reservation.OfferID,
+		MessageBody: "あなたの相乗りオファーが予約されました。",
+		Title:       "あなたの相乗りオファーが予約されました。",
+	}
+	err = SendPushMessage(pushData)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -107,6 +143,31 @@ func (re *Reservation) CancelReservation(w http.ResponseWriter, r *http.Request)
 
 	_, err = reservation.Delete(re.DB)
 	if NotFoundOrErr(w, err) != nil {
+		return
+	}
+
+	//プッシュ通知 (ドライバ向け)
+	offer, err := model.OfferOne(re.DB, reservation.OfferID)
+	if err != nil {
+		NotFoundOrErr(w, err)
+		return
+	}
+	token, err := model.TokenOneDriver(re.DB, offer.DriverID)
+	if err != nil {
+		NotFoundOrErr(w, err)
+		return
+	}
+	pushData := &PushData{
+		To:          token.PushToken,
+		Type:        "canceled_reservation",
+		OfferID:     reservation.OfferID,
+		MessageBody: "あなたの相乗りオファーへの予約がキャンセルされました。",
+		Title:       "あなたの相乗りオファーへの予約がキャンセルされました。",
+	}
+	err = SendPushMessage(pushData)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
