@@ -68,6 +68,8 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	log.Println(reservation.DepartureTime)
+
 	result, err := reservation.Insert(re.DB)
 	if err != nil {
 		log.Println(err)

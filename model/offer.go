@@ -128,8 +128,8 @@ func OffersWithDriver(db *sql.DB, driverID int64) ([]Offer, error) {
 }
 
 func (o *Offer) Insert(db *sql.DB) (sql.Result, error) {
-	result, err := db.Exec("INSERT INTO offers (driver_id, start, goal, departure_time, rider_capacity) values"+
-		" (?, ?, ?, ?, ?) ",
+	result, err := db.Exec("INSERT INTO offers (driver_id, start, goal, departure_time, rider_capacity) values "+
+		"(?, ?, ?, ?, ?) ",
 		o.DriverID, o.Start, o.Goal, o.DepartureTime, o.RiderCapacity)
 
 	if err != nil {

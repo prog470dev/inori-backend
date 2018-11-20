@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql"
+	"log"
 	"time"
 )
 
@@ -54,8 +55,12 @@ func ReservationsWithRider(db *sql.DB, riderID int64) ([]Reservation, error) {
 }
 
 func (r *Reservation) Insert(db *sql.DB) (sql.Result, error) {
-	result, err := db.Exec("INSERT INTO reservations (offer_id, rider_id, departure_time) values (?, ?, ?) ", r.OfferID, r.RiderID, r.DepartureTime)
+	result, err := db.Exec("INSERT INTO reservations (offer_id, rider_id, departure_time) values "+
+		"(?, ?, ?) ",
+		r.OfferID, r.RiderID, r.DepartureTime)
+
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
