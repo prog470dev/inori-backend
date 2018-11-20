@@ -22,6 +22,7 @@ func ReservationOne(db *sql.DB, id int64) (*Reservation, error) {
 		&reservation.ID,
 		&reservation.OfferID,
 		&reservation.RiderID,
+		&reservation.DepartureTime,
 	); err != nil {
 		return nil, err
 	}
@@ -44,6 +45,7 @@ func ReservationsWithRider(db *sql.DB, riderID int64) ([]Reservation, error) {
 			&reservation.ID,
 			&reservation.OfferID,
 			&reservation.RiderID,
+			&reservation.DepartureTime,
 		)
 		if err != nil {
 			return nil, err
@@ -104,6 +106,7 @@ func ReservationsWithOffer(db *sql.DB, offerID int64) ([]*Reservation, error) {
 			&reservation.ID,
 			&reservation.OfferID,
 			&reservation.RiderID,
+			&reservation.DepartureTime,
 		)
 		if err != nil {
 			return nil, err
