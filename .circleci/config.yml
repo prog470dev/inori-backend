@@ -1,35 +1,59 @@
-# Golang CircleCI 2.0 configuration file
+## Golang CircleCI 2.0 configuration file
+##
+## Check https://circleci.com/docs/2.0/language-go/ for more details
+#version: 2
+#jobs:
+#  build:
+#    docker:
+#      # specify the version
+#      - image: circleci/golang:1.9
+#      - image: circleci/mysql:5.7
+#        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_bin --innodb-large-prefix=true --innodb-file-format=Barracuda
+#        environment:
+#          MYSQL_USER: root
+#          MYSQL_ROOT_PASSWORD: circleci
+#          MYSQL_ALLOW_EMPTY_PASSWORD: true
 #
-# Check https://circleci.com/docs/2.0/language-go/ for more details
+#    working_directory: /go/src/github.com/prog470dev/inori-backend
+#    steps:
+#      - checkout
+#      # specify any bash command here prefixed with `run: `
+#      - run: go get -v -t -d ./...
+#      - run: go test -v ./...
+#      - add_ssh_keys:
+#          fingerprints:
+#            - "60:1d:96:93:28:03:f0:9f:9a:3c:e7:35:37:94:a6:71"
+#      - run:
+#          name: ssh-key
+#          command: echo ${SSH_KEY} >> ~/.ssh/known_hosts
+#      - run: GOOS=linux GOARCH=amd64 go build -o ino.out
+#      - run: mkdir Ino
+#      - run: cp dbconfig.yml Ino && cp -r migrations Ino && cp ino.out Ino
+#      - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml ${SSH_USER}@${SSH_HOST}:./
+#      - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh ${SSH_USER}@${SSH_HOST}:./
+#      - run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "chmod 755 deploy.sh && nohup ./deploy.sh >/dev/null 2>&1 </dev/null &"
+#
+
 version: 2
 jobs:
   build:
     docker:
       # specify the version
       - image: circleci/golang:1.9
-      - image: circleci/mysql:5.7
-        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_bin --innodb-large-prefix=true --innodb-file-format=Barracuda
-        environment:
-          MYSQL_USER: root
-          MYSQL_ROOT_PASSWORD: circleci
-          MYSQL_ALLOW_EMPTY_PASSWORD: true
 
-    working_directory: /go/src/github.com/prog470dev/inori-backend
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    #### TEMPLATE_NOTE: go expects specific checkout path representing url
+    #### expecting it in the form of
+    ####   /go/src/github.com/circleci/go-tool
+    ####   /go/src/bitbucket.org/circleci/go-tool
+    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
     steps:
       - checkout
+
       # specify any bash command here prefixed with `run: `
       - run: go get -v -t -d ./...
       - run: go test -v ./...
-      - add_ssh_keys:
-          fingerprints:
-            - "60:1d:96:93:28:03:f0:9f:9a:3c:e7:35:37:94:a6:71"
-      - run:
-          name: ssh-key
-          command: echo ${SSH_KEY} >> ~/.ssh/known_hosts
-      - run: GOOS=linux GOARCH=amd64 go build -o ino.out
-      - run: mkdir Ino
-      - run: cp dbconfig.yml Ino && cp -r migrations Ino && cp ino.out Ino
-      - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml ${SSH_USER}@${SSH_HOST}:./
-      - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh ${SSH_USER}@${SSH_HOST}:./
-      - run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "chmod 755 deploy.sh && nohup ./deploy.sh >/dev/null 2>&1 </dev/null &"
-
