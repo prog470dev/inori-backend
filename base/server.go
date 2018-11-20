@@ -38,6 +38,7 @@ func (s *Server) Route() *mux.Router {
 	rider := &controller.Rider{s.db}
 	offer := &controller.Offer{s.db}
 	reservation := &controller.Reservation{s.db}
+	token := &controller.Token{s.db}
 
 	// HelloWorld
 	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +78,11 @@ func (s *Server) Route() *mux.Router {
 	r.HandleFunc("/reservations", middle(reservation.CreateReservation)).Methods("POST")
 	/**  Reservation: 削除 **/
 	r.HandleFunc("/reservations/{reservation_id:[0-9]+}", middle(reservation.CancelReservation)).Methods("DELETE")
+
+	/** Token Push Driver **/
+	r.HandleFunc("/token/push/drivers", middle(token.RegisterPushTokenDriver)).Methods("POST")
+	/** Token Push Rider **/
+	r.HandleFunc("/token/push/riders", middle(token.RegisterPushTokenRider)).Methods("POST")
 
 	return r
 }
