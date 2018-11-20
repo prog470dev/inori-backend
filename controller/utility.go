@@ -44,25 +44,27 @@ type PushData struct {
 }
 
 func SendPushMessage(pushData *PushData) error {
+	type data struct {
+		Type        string `json:"type"`
+		OfferID     int64  `json:"offer_id"`
+		MessageBody string `json:"message_body"`
+	}
+
 	body := struct {
-		To   string `json:"to"`
-		Data struct {
-			Type        string `json:"type"`
-			OfferID     int64  `json:"offer_id"`
-			MessageBody string `json:"message_body"`
-		} `json:"data"`
+		To        string  `json:"to"`
+		Data      data    `json:"data"`
 		Title     string  `json:"title"`
 		Body      string  `json:"body"`
 		Sound     string  `json:"sound"`
 		Badge     int64   `json:"badge"`
-		ChannelId *string `json:"channelId"`
+		ChannelId *string `json:"channelId"` //TODO: string と nil を両立
 	}{
 		To: pushData.To,
-		Data: struct {
-			Type        string
-			OfferID     int64
-			MessageBody string
-		}{Type: pushData.Type, OfferID: pushData.OfferID, MessageBody: pushData.MessageBody},
+		Data: data{
+			Type:        pushData.Type,
+			OfferID:     pushData.OfferID,
+			MessageBody: pushData.MessageBody,
+		},
 		Title:     "",
 		Body:      pushData.Body,
 		Sound:     "default",
@@ -97,6 +99,8 @@ func SendPushMessage(pushData *PushData) error {
 		return err
 	}
 	defer resp.Body.Close()
+
+	log.Println(resp.Status)
 
 	return nil
 }
