@@ -84,6 +84,8 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	//TODO: プッシュ通知
+
 	JSON(w, http.StatusOK, struct {
 		ID int64 `json:"id"`
 	}{
@@ -109,6 +111,8 @@ func (re *Reservation) CancelReservation(w http.ResponseWriter, r *http.Request)
 	if NotFoundOrErr(w, err) != nil {
 		return
 	}
+
+	//TODO: プッシュ通知
 
 	JSON(w, http.StatusOK, struct {
 		ID int64 `json:"id"`

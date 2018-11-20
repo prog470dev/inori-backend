@@ -171,6 +171,8 @@ func (o *Offer) DeleteOffer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//TODO: プッシュ通知
+
 	JSON(w, http.StatusOK, struct {
 		ID int64 `json:"id"`
 	}{
