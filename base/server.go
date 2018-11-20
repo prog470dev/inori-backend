@@ -80,9 +80,9 @@ func (s *Server) Route() *mux.Router {
 	r.HandleFunc("/reservations/{reservation_id:[0-9]+}", middle(reservation.CancelReservation)).Methods("DELETE")
 
 	/** Token Push Driver **/
-	r.HandleFunc("/token/push/drivers", middle(token.RegisterPushTokenDriver)).Methods("POST")
+	r.HandleFunc("/tokens/push/drivers", middle(token.RegisterPushTokenDriver)).Methods("POST")
 	/** Token Push Rider **/
-	r.HandleFunc("/token/push/riders", middle(token.RegisterPushTokenRider)).Methods("POST")
+	r.HandleFunc("/tokens/push/riders", middle(token.RegisterPushTokenRider)).Methods("POST")
 
 	return r
 }
