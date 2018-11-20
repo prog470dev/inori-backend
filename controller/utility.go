@@ -47,7 +47,7 @@ func SendPushMessage(pushData *PushData) error {
 	type data struct {
 		Type        string `json:"type"`
 		OfferID     int64  `json:"offer_id"`
-		MessageBody string `json:"message_body"`
+		MessageBody string `json:"message_title"`
 	}
 
 	body := struct {
