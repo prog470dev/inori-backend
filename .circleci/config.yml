@@ -29,6 +29,7 @@ jobs:
       - run: GOOS=linux GOARCH=amd64 go build -o ino.out
       - run: mkdir Ino
       - run: cp dbconfig.yml Ino && cp -r migrations Ino && cp ino.out Ino
+      - run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "pkill -e ino.out"
       - run: scp -o "StrictHostKeyChecking=no" Ino/ino.out ${SSH_USER}@${SSH_HOST}:./Ino/
       - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml ${SSH_USER}@${SSH_HOST}:./Ino/
       - run: scp -o "StrictHostKeyChecking=no" -r Ino/migrations ${SSH_USER}@${SSH_HOST}:./Ino/
