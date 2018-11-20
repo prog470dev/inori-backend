@@ -49,6 +49,7 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 
 	reservations, err := model.ReservationsWithOffer(re.DB, reservation.OfferID)
 	if err != nil && err != sql.ErrNoRows { // 予約がないのはOK
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -56,6 +57,7 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 	// 存在しないOfferはエラー
 	offer, err := model.OfferOne(re.DB, reservation.OfferID)
 	if NotFoundOrErr(w, err) != nil {
+		log.Println(err)
 		return
 	}
 
@@ -68,12 +70,14 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 
 	result, err := reservation.Insert(re.DB)
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
