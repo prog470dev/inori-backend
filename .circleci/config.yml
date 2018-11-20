@@ -29,6 +29,8 @@ jobs:
       - run: GOOS=linux GOARCH=amd64 go build -o ino.out
       - run: mkdir Ino
       - run: cp dbconfig.yml Ino && cp -r migrations Ino && cp ino.out Ino
-      - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml ${SSH_USER}@${SSH_HOST}:./
-      - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh ${SSH_USER}@${SSH_HOST}:./
-      - run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "chmod 755 deploy.sh && nohup ./deploy.sh >/dev/null 2>&1 </dev/null &"
+      - run: scp -o "StrictHostKeyChecking=no" Ino/ino.out ${SSH_USER}@${SSH_HOST}:./Ino/
+      - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml ${SSH_USER}@${SSH_HOST}:./Ino/
+      - run: scp -o "StrictHostKeyChecking=no" -r Ino/migrations ${SSH_USER}@${SSH_HOST}:./Ino/
+      - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh ${SSH_USER}@${SSH_HOST}:./Ino/
+      - run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "cd Ino && chmod 755 deploy.sh && nohup ./deploy.sh >/dev/null 2>&1 </dev/null &"

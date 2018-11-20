@@ -7,11 +7,10 @@ import (
 )
 
 type Offer struct {
-	ID       int64  `db:"id" json:"id"`
-	DriverID int64  `db:"driver_id" json:"driver_id"`
-	Start    string `db:"start" json:"start"`
-	Goal     string `db:"goal" json:"goal"`
-	//DepartureTime time.Time `db:"departure_time" json:"departure_time"` //use TimeLayout
+	ID            int64  `db:"id" json:"id"`
+	DriverID      int64  `db:"driver_id" json:"driver_id"`
+	Start         string `db:"start" json:"start"`
+	Goal          string `db:"goal" json:"goal"`
 	DepartureTime string `db:"departure_time" json:"departure_time"`
 	RiderCapacity int64  `db:"rider_capacity" json:"rider_capacity"`
 }
@@ -129,8 +128,8 @@ func OffersWithDriver(db *sql.DB, driverID int64) ([]Offer, error) {
 }
 
 func (o *Offer) Insert(db *sql.DB) (sql.Result, error) {
-	result, err := db.Exec("INSERT INTO offers (driver_id, start, goal, departure_time, rider_capacity) values"+
-		" (?, ?, ?, ?, ?) ",
+	result, err := db.Exec("INSERT INTO offers (driver_id, start, goal, departure_time, rider_capacity) values "+
+		"(?, ?, ?, ?, ?) ",
 		o.DriverID, o.Start, o.Goal, o.DepartureTime, o.RiderCapacity)
 
 	if err != nil {
