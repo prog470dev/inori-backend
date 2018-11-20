@@ -73,6 +73,11 @@ func (o *Offer) GetOffers(w http.ResponseWriter, r *http.Request) {
 			riders = append(riders, reservation.RiderID)
 		}
 
+		//キャパシティオーバーの場合は非表示
+		if int(off.RiderCapacity) == len(reservations) {
+			continue
+		}
+
 		// 時間文字列の変換
 		t, err := SwitchTimeStrStyle(off.DepartureTime)
 		if err != nil {
