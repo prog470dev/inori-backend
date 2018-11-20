@@ -40,7 +40,7 @@ type PushData struct {
 	Type        string
 	OfferID     int64
 	MessageBody string
-	Body        string
+	Title       string
 }
 
 func SendPushMessage(pushData *PushData) error {
@@ -51,13 +51,13 @@ func SendPushMessage(pushData *PushData) error {
 	}
 
 	body := struct {
-		To        string  `json:"to"`
-		Data      data    `json:"data"`
-		Title     string  `json:"title"`
-		Body      string  `json:"body"`
-		Sound     string  `json:"sound"`
-		Badge     int64   `json:"badge"`
-		ChannelId *string `json:"channelId"` //TODO: string と nil を両立
+		To        string `json:"to"`
+		Data      data   `json:"data"`
+		Title     string `json:"title"`
+		Body      string `json:"body"`
+		Sound     string `json:"sound"`
+		Badge     int64  `json:"badge"`
+		ChannelId string `json:"channelId"` //TODO: string と nil を両立
 	}{
 		To: pushData.To,
 		Data: data{
@@ -65,11 +65,11 @@ func SendPushMessage(pushData *PushData) error {
 			OfferID:     pushData.OfferID,
 			MessageBody: pushData.MessageBody,
 		},
-		Title:     "",
-		Body:      pushData.Body,
+		Title:     pushData.Title, //TODO: 空だとエラー
+		Body:      "",
 		Sound:     "default",
 		Badge:     1,
-		ChannelId: nil,
+		ChannelId: "null",
 	}
 
 	b, err := json.Marshal(body)

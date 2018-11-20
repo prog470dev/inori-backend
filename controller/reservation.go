@@ -33,6 +33,16 @@ func (re *Reservation) GetRiderOffers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 時間文字列の変換
+	for _, reserve := range reservations {
+		t, err := SwitchTimeStrStyle(reserve.DepartureTime)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		reserve.DepartureTime = t
+	}
+
 	JSON(w, http.StatusOK, struct {
 		Reservations []model.Reservation `json:"reservations"`
 	}{
@@ -84,7 +94,25 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	//TODO: プッシュ通知
+	//プッシュ通知 (ドライバ向け)
+	token, err := model.TokenOneDriver(re.DB, offer.DriverID)
+	if err != nil {
+		NotFoundOrErr(w, err)
+		return
+	}
+	pushData := &PushData{
+		To:          token.PushToken,
+		Type:        "reserved_offer",
+		OfferID:     reservation.OfferID,
+		MessageBody: "あなたの相乗りオファーが予約されました。",
+		Title:       "あなたの相乗りオファーが予約されました。",
+	}
+	err = SendPushMessage(pushData)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	JSON(w, http.StatusOK, struct {
 		ID int64 `json:"id"`
@@ -112,7 +140,30 @@ func (re *Reservation) CancelReservation(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	//TODO: プッシュ通知
+	//プッシュ通知 (ドライバ向け)
+	offer, err := model.OfferOne(re.DB, reservation.OfferID)
+	if err != nil {
+		NotFoundOrErr(w, err)
+		return
+	}
+	token, err := model.TokenOneDriver(re.DB, offer.DriverID)
+	if err != nil {
+		NotFoundOrErr(w, err)
+		return
+	}
+	pushData := &PushData{
+		To:          token.PushToken,
+		Type:        "canceled_reservation",
+		OfferID:     reservation.OfferID,
+		MessageBody: "あなたの相乗りオファーへの予約がキャンセルされました。",
+		Title:       "あなたの相乗りオファーへの予約がキャンセルされました。",
+	}
+	err = SendPushMessage(pushData)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	JSON(w, http.StatusOK, struct {
 		ID int64 `json:"id"`

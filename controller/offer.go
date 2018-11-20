@@ -57,7 +57,7 @@ func (o *Offer) GetOffers(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	//TODO: Offerの時系列順ソート
+	//Offerの時系列順ソート
 	sort.Sort(model.TimedOffer(offers))
 
 	resps := []OfferResp{}
@@ -159,6 +159,14 @@ func (o *Offer) DeleteOffer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 関連reservationの情報を取得 (プッシュ通知のため)
+	// 実際の通知を削除後にやる理由：Expoサーバのトラブルでreservationが削除されないのを防ぐため
+	reservations, err := model.ReservationsWithOffer(o.DB, offer.ID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	// 関連reservationの削除
 	_, err = model.DeleteOfferReservation(o.DB, int(offer.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -166,12 +174,33 @@ func (o *Offer) DeleteOffer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//プッシュ通知 (複数のライダ向け)
+	for _, reserve := range reservations {
+		token, err := model.TokenOneRider(o.DB, reserve.ID)
+		if err != nil {
+			NotFoundOrErr(w, err)
+			return
+		}
+		pushData := &PushData{
+			To:          token.PushToken,
+			Type:        "canceled_offer",
+			OfferID:     offer.ID,
+			MessageBody: "予約済みのオファーがキャンセルされました。",
+			Title:       "予約済みのオファーがキャンセルされました。",
+		}
+		err = SendPushMessage(pushData)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	// offer の削除 (関連reservationは削除済み)
 	_, err = offer.Delete(o.DB)
 	if NotFoundOrErr(w, err) != nil {
 		return
 	}
-
-	//TODO: プッシュ通知
 
 	JSON(w, http.StatusOK, struct {
 		ID int64 `json:"id"`

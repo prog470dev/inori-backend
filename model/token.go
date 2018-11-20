@@ -1,6 +1,8 @@
 package model
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 type Token struct {
 	ID        int64  `db:"id" json:"id"`
@@ -18,4 +20,34 @@ func (t *Token) InsertOrUpdateToken(db *sql.DB) (sql.Result, error) {
 	defer stmt.Close()
 
 	return stmt.Exec(t.Role, t.RoleID, t.PushToken, t.PushToken)
+}
+
+func TokenOneDriver(db *sql.DB, driverID int64) (*Token, error) {
+	token := &Token{}
+
+	if err := db.QueryRow("SELECT * FROM tokens WHERE role = ? AND role_id = ? LIMIT 1", "driver", driverID).Scan(
+		&token.ID,
+		&token.Role,
+		&token.RoleID,
+		&token.PushToken,
+	); err != nil {
+		return nil, err
+	}
+
+	return token, nil
+}
+
+func TokenOneRider(db *sql.DB, driverID int64) (*Token, error) {
+	token := &Token{}
+
+	if err := db.QueryRow("SELECT * FROM tokens WHERE role = ? AND role_id = ? LIMIT 1", "rider", driverID).Scan(
+		&token.ID,
+		&token.Role,
+		&token.RoleID,
+		&token.PushToken,
+	); err != nil {
+		return nil, err
+	}
+
+	return token, nil
 }
