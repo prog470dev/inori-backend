@@ -15,7 +15,7 @@ type Reservation struct {
 	DB *sql.DB
 }
 
-func (d *Reservation) GetRiderOffers(w http.ResponseWriter, r *http.Request) {
+func (re *Reservation) GetRiderOffers(w http.ResponseWriter, r *http.Request) {
 	u, err := url.Parse(r.URL.RequestURI())
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -28,7 +28,7 @@ func (d *Reservation) GetRiderOffers(w http.ResponseWriter, r *http.Request) {
 	}
 	riderID, err := strconv.ParseInt(query["rider_id"][0], 10, 64)
 
-	reservations, err := model.ReservationsWithRider(d.DB, riderID)
+	reservations, err := model.ReservationsWithRider(re.DB, riderID)
 	if NotFoundOrErr(w, err) != nil {
 		return
 	}
@@ -40,34 +40,33 @@ func (d *Reservation) GetRiderOffers(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (d *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request) {
+func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request) {
 	var reservation model.Reservation
 	if err := json.NewDecoder(r.Body).Decode(&reservation); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	reservations, err := model.ReservationsWithOffer(d.DB, reservation.OfferID)
+	reservations, err := model.ReservationsWithOffer(re.DB, reservation.OfferID)
 	if err != nil && err != sql.ErrNoRows { // 予約がないのはOK
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	// 存在しないOfferはエラー
-	offer, err := model.OfferOne(d.DB, reservation.OfferID)
+	offer, err := model.OfferOne(re.DB, reservation.OfferID)
 	if NotFoundOrErr(w, err) != nil {
 		return
 	}
 
 	// 満員（クライアント側の同期がリアルタイムやられていれば基本発生しない）
 	if len(reservations) == int(offer.RiderCapacity) {
-		//TODO: 満員であることを伝えるエラー
 		log.Println(len(reservations), int(offer.RiderCapacity))
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest) //TODO: 満員であることを伝えるボディを返す
 		return
 	}
 
-	result, err := reservation.Insert(d.DB)
+	result, err := reservation.Insert(re.DB)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -86,7 +85,7 @@ func (d *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-func (d *Reservation) CancelReservation(w http.ResponseWriter, r *http.Request) {
+func (re *Reservation) CancelReservation(w http.ResponseWriter, r *http.Request) {
 	reservationID, err := strconv.ParseInt(mux.Vars(r)["reservation_id"], 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -95,12 +94,12 @@ func (d *Reservation) CancelReservation(w http.ResponseWriter, r *http.Request) 
 
 	reservation := &model.Reservation{}
 	// delete文は対象レコードの有無に関する情報は返さないため、事前にselectを実行
-	reservation, err = model.ReservationOne(d.DB, reservationID)
+	reservation, err = model.ReservationOne(re.DB, reservationID)
 	if NotFoundOrErr(w, err) != nil {
 		return
 	}
 
-	_, err = reservation.Delete(d.DB)
+	_, err = reservation.Delete(re.DB)
 	if NotFoundOrErr(w, err) != nil {
 		return
 	}

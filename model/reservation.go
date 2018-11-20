@@ -2,18 +2,22 @@ package model
 
 import (
 	"database/sql"
+	"time"
 )
 
 type Reservation struct {
-	ID      int64 `db:"id" json:"id"`
-	OfferID int64 `db:"offer_id" json:"offer_id"`
-	RiderID int64 `db:"rider_id" json:"rider_id"`
+	ID            int64  `db:"id" json:"id"`
+	OfferID       int64  `db:"offer_id" json:"offer_id"`
+	RiderID       int64  `db:"rider_id" json:"rider_id"`
+	DepartureTime string `db:"departure_time" json:"departure_time"`
 }
 
 func ReservationOne(db *sql.DB, id int64) (*Reservation, error) {
 	reservation := &Reservation{}
 
-	if err := db.QueryRow("SELECT * FROM reservations WHERE id = ? LIMIT 1", id).Scan(
+	currentTime := time.Now()
+
+	if err := db.QueryRow("SELECT * FROM reservations WHERE id = ? AND departure_time > ? LIMIT 1", id, currentTime).Scan(
 		&reservation.ID,
 		&reservation.OfferID,
 		&reservation.RiderID,
@@ -25,7 +29,9 @@ func ReservationOne(db *sql.DB, id int64) (*Reservation, error) {
 }
 
 func ReservationsWithRider(db *sql.DB, riderID int64) ([]Reservation, error) {
-	rows, err := db.Query("SELECT * FROM reservations WHERE rider_id = ?", riderID)
+	currentTime := time.Now()
+
+	rows, err := db.Query("SELECT * FROM reservations WHERE rider_id = ? AND departure_time > ? ", riderID, currentTime)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +54,7 @@ func ReservationsWithRider(db *sql.DB, riderID int64) ([]Reservation, error) {
 }
 
 func (r *Reservation) Insert(db *sql.DB) (sql.Result, error) {
-	result, err := db.Exec("INSERT INTO reservations (offer_id, rider_id) values (?, ?) ", r.OfferID, r.RiderID)
+	result, err := db.Exec("INSERT INTO reservations (offer_id, rider_id, departure_time) values (?, ?, ?) ", r.OfferID, r.RiderID, r.DepartureTime)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +82,9 @@ func DeleteOfferReservation(db *sql.DB, offer_id int) (sql.Result, error) {
 
 // オファーの予約
 func ReservationsWithOffer(db *sql.DB, offerID int64) ([]*Reservation, error) {
-	rows, err := db.Query("SELECT * FROM reservations WHERE offer_id = ?", offerID)
+	currentTime := time.Now()
+
+	rows, err := db.Query("SELECT * FROM reservations WHERE offer_id = ? AND departure_time > ? ", offerID, currentTime)
 	if err == sql.ErrNoRows {
 		return []*Reservation{}, nil
 	}
