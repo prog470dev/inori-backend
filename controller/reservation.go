@@ -72,8 +72,8 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 	}
 
 	// 満員（クライアント側の同期がリアルタイムやられていれば基本発生しない）
+	log.Println(len(reservations), int(offer.RiderCapacity))
 	if len(reservations) == int(offer.RiderCapacity) {
-		log.Println(len(reservations), int(offer.RiderCapacity))
 		//w.WriteHeader(http.StatusBadRequest) //TODO: 満員であることを伝えるボディを返す
 
 		JSON(w, http.StatusBadRequest, struct {
@@ -103,6 +103,7 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 	//プッシュ通知 (ドライバ向け)
 	token, err := model.TokenOneDriver(re.DB, offer.DriverID)
 	if err != nil {
+		log.Println(err)
 		NotFoundOrErr(w, err)
 		return
 	}
