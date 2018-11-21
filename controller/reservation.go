@@ -74,9 +74,9 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 	// 満員（クライアント側の同期がリアルタイムやられていれば基本発生しない）
 	if len(reservations) == int(offer.RiderCapacity) {
 		log.Println(len(reservations), int(offer.RiderCapacity))
-		w.WriteHeader(http.StatusBadRequest) //TODO: 満員であることを伝えるボディを返す
+		//w.WriteHeader(http.StatusBadRequest) //TODO: 満員であることを伝えるボディを返す
 
-		JSON(w, http.StatusOK, struct {
+		JSON(w, http.StatusBadRequest, struct {
 			Message string `json:"message"`
 		}{
 			Message: "no capacity",
