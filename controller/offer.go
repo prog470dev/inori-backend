@@ -187,7 +187,7 @@ func (o *Offer) DeleteOffer(w http.ResponseWriter, r *http.Request) {
 
 	//プッシュ通知 (複数のライダ向け)
 	for _, reserve := range reservations {
-		token, err := model.TokenOneRider(o.DB, reserve.ID)
+		token, err := model.TokenOneRider(o.DB, reserve.RiderID)
 		if err != nil {
 			JSON(w, http.StatusOK, struct {
 				ID      int64  `json:"id"`
