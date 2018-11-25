@@ -74,6 +74,9 @@ func OfferOneWithoutTime(db *sql.DB, id int64) (*Offer, error) {
 func OffersAll(db *sql.DB) ([]Offer, error) {
 	currentTime := time.Now()
 
+	// 締切を１時間前まで
+	currentTime = currentTime.Add(time.Duration(-1) * time.Hour)
+
 	rows, err := db.Query("SELECT * FROM offers WHERE departure_time > ?", currentTime)
 	if err != nil {
 		return nil, err
@@ -101,6 +104,9 @@ func OffersAll(db *sql.DB) ([]Offer, error) {
 
 func OffersWithDriver(db *sql.DB, driverID int64) ([]Offer, error) {
 	currentTime := time.Now()
+
+	// 確認できるのは１時間後まで
+	currentTime = currentTime.Add(time.Duration(1) * time.Hour)
 
 	rows, err := db.Query("SELECT * FROM offers WHERE driver_id = ? AND departure_time > ?", driverID, currentTime)
 	if err != nil {
