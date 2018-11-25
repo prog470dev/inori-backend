@@ -84,7 +84,7 @@ jobs:
             name: kill-process
             command: |
               scp -o "StrictHostKeyChecking=no" .circleci/kill.sh ${SSH_USER}@${SSH_HOST}:./
-              ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "cd Ino && chmod 755 kill.sh && ./kill.sh
+              ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "cd Ino && chmod 755 kill.sh && ./kill.sh"
         #- run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "pkill -e ino.out"
 #        - run: scp -o "StrictHostKeyChecking=no" Ino/ino.out ${SSH_USER}@${SSH_HOST}:./Ino/
 #        - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml ${SSH_USER}@${SSH_HOST}:./Ino/
@@ -104,6 +104,6 @@ workflows:
       - deploy:
           requires:
             - build
-          filters:
-            branches:
-              only: master
+#          filters:
+#            branches:
+#              only: master
