@@ -57,8 +57,12 @@ jobs:
           command: |
             which dep || go get -v -u github.com/golang/dep/cmd/dep
             dep ensure
-      - run: GOOS=linux GOARCH=amd64 go build -o ino.out
-      - run: mkdir Ino && cp dbconfig.yml Ino && cp -r migrations Ino && cp ino.out Ino && cp .circleci/deploy.sh Ino
+      - run:
+          name: Build
+          command: |
+            GOOS=linux GOARCH=amd64 go build -o ino.out
+            mkdir Ino
+            cp dbconfig.yml Ino && cp -r migrations Ino && cp ino.out Ino && cp .circleci/deploy.sh Ino
       - save_cache:
           key: go-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ .Revision }}
           paths:
@@ -67,7 +71,7 @@ jobs:
           root: .
           paths:
             - Ino
-            - .circleci/kill.sh
+            - .circleci/kill.sh # csp前にプロセスを殺すため別扱い
   deploy:
       machine:
         enabled: true
@@ -81,17 +85,16 @@ jobs:
             name: ssh-key
             command: echo ${SSH_KEY} >> ~/.ssh/known_hosts
         - run:  # 実行ファイルをコピーするためにプロセスを殺す
-            name: kill-process
+            name: Kill
             command: |
               scp -o "StrictHostKeyChecking=no" .circleci/kill.sh ${SSH_USER}@${SSH_HOST}:./
-              ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "cd Ino && chmod 755 kill.sh && ./kill.sh
-        #- run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "pkill -e ino.out"
-#        - run: scp -o "StrictHostKeyChecking=no" Ino/ino.out ${SSH_USER}@${SSH_HOST}:./Ino/
-#        - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml ${SSH_USER}@${SSH_HOST}:./Ino/
-#        - run: scp -o "StrictHostKeyChecking=no" -r Ino/migrations ${SSH_USER}@${SSH_HOST}:./Ino/
-        - run: scp -o "StrictHostKeyChecking=no" -r Ino ${SSH_USER}@${SSH_HOST}:./Ino/
-#        - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh ${SSH_USER}@${SSH_HOST}:./Ino/
-        - run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "cd Ino && chmod 755 deploy.sh && nohup ./deploy.sh >/dev/null 2>&1 </dev/null &"
+              ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "chmod 755 kill.sh && ./kill.sh"
+        - run:
+            name: Copy
+            command: scp -o "StrictHostKeyChecking=no" -r Ino ${SSH_USER}@${SSH_HOST}:./Ino/
+        - run:
+            name: Deploy
+            command: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "cd Ino && chmod 755 deploy.sh && nohup ./deploy.sh >/dev/null 2>&1 </dev/null &"
 
 workflows:
   version: 2
