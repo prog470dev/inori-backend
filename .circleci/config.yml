@@ -52,6 +52,7 @@ jobs:
           root: .
           paths:
             - Ino
+            - .circleci/deploy.sh
   deploy:
       machine:
         enabled: true
