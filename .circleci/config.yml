@@ -86,9 +86,11 @@ jobs:
             command: echo ${SSH_KEY} >> ~/.ssh/known_hosts
         - run:  # 実行ファイルをコピーするためにプロセスを殺す
             name: Kill
+#            command: |
+#              scp -o "StrictHostKeyChecking=no" .circleci/kill.sh ${SSH_USER}@${SSH_HOST}:./
+#              ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "chmod 755 kill.sh && ./kill.sh"
             command: |
-              scp -o "StrictHostKeyChecking=no" .circleci/kill.sh ${SSH_USER}@${SSH_HOST}:./
-              ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "chmod 755 kill.sh && ./kill.sh"
+              scp -o "StrictHostKeyChecking=no" .circleci/kill.sh ${SSH_USER}@${SSH_HOST}:./ && ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "chmod 755 kill.sh && ./kill.sh"
         - run:
             name: Copy
             command: scp -o "StrictHostKeyChecking=no" -r Ino ${SSH_USER}@${SSH_HOST}:./Ino/
@@ -107,6 +109,6 @@ workflows:
       - deploy:
           requires:
             - build
-          filters:
-            branches:
-              only: master
+#          filters:
+#            branches:
+#              only: master
