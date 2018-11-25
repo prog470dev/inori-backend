@@ -38,6 +38,7 @@ jobs:
 #      - run:
 #          name: ssh-key
 #          command: echo ${SSH_KEY} >> ~/.ssh/known_hosts
+      - run: go get -v -t ./...
       - run: GOOS=linux GOARCH=amd64 go build -o ino.out
       - run: mkdir Ino
       - run: cp dbconfig.yml Ino && cp -r migrations Ino && cp ino.out Ino
