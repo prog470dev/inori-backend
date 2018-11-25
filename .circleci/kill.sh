@@ -1,7 +1,9 @@
 #!/bin/sh
 
-pkill -e ino.out > /dev/null 2>&1
+var1=`ps -ef | grep ino.out | grep -v grep | wc -l`
 
-if [ $? = 0 ]; then
+echo $var1
+
+if [ $var1 > 0 ]; then
   pkill -e ino.out
 fi
