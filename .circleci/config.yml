@@ -3,9 +3,9 @@
 # Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
-  build:
+  test:
+    working_directory: /go/src/github.com/prog470dev/inori-backend
     docker:
-      # specify the version
       - image: circleci/golang:1.9
       - image: circleci/mysql:5.7
         command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_bin --innodb-large-prefix=true --innodb-file-format=Barracuda
@@ -13,25 +13,75 @@ jobs:
           MYSQL_USER: root
           MYSQL_ROOT_PASSWORD: circleci
           MYSQL_ALLOW_EMPTY_PASSWORD: true
-
+    steps:
+      - checkout
+      - run: go get -v -t ./...
+      - run: go test -v ./...
+  build:
     working_directory: /go/src/github.com/prog470dev/inori-backend
+    docker:
+      - image: circleci/golang:1.9
+      - image: circleci/mysql:5.7
+        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_bin --innodb-large-prefix=true --innodb-file-format=Barracuda
+        environment:
+          MYSQL_USER: root
+          MYSQL_ROOT_PASSWORD: circleci
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
     steps:
       - checkout
       # specify any bash command here prefixed with `run: `
-      - run: go get -v -t -d ./...
-      - run: go test -v ./...
-      - add_ssh_keys:
-          fingerprints:
-            - "60:1d:96:93:28:03:f0:9f:9a:3c:e7:35:37:94:a6:71"
-      - run:
-          name: ssh-key
-          command: echo ${SSH_KEY} >> ~/.ssh/known_hosts
+#      - run: go get -v -t -d ./...
+#      - run: go test -v ./...
+#      - add_ssh_keys:
+#          fingerprints:
+#            - "60:1d:96:93:28:03:f0:9f:9a:3c:e7:35:37:94:a6:71"
+#      - run:
+#          name: ssh-key
+#          command: echo ${SSH_KEY} >> ~/.ssh/known_hosts
+      - run: go get -v -t ./...
       - run: GOOS=linux GOARCH=amd64 go build -o ino.out
       - run: mkdir Ino
       - run: cp dbconfig.yml Ino && cp -r migrations Ino && cp ino.out Ino
-      - run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "pkill -e ino.out"
-      - run: scp -o "StrictHostKeyChecking=no" Ino/ino.out ${SSH_USER}@${SSH_HOST}:./Ino/
-      - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml ${SSH_USER}@${SSH_HOST}:./Ino/
-      - run: scp -o "StrictHostKeyChecking=no" -r Ino/migrations ${SSH_USER}@${SSH_HOST}:./Ino/
-      - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh ${SSH_USER}@${SSH_HOST}:./Ino/
-      - run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "cd Ino && chmod 755 deploy.sh && nohup ./deploy.sh >/dev/null 2>&1 </dev/null &"
+#      - run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "pkill -e ino.out"
+#      - run: scp -o "StrictHostKeyChecking=no" Ino/ino.out ${SSH_USER}@${SSH_HOST}:./Ino/
+#      - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml ${SSH_USER}@${SSH_HOST}:./Ino/
+#      - run: scp -o "StrictHostKeyChecking=no" -r Ino/migrations ${SSH_USER}@${SSH_HOST}:./Ino/
+#      - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh ${SSH_USER}@${SSH_HOST}:./Ino/
+#      - run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "cd Ino && chmod 755 deploy.sh && nohup ./deploy.sh >/dev/null 2>&1 </dev/null &"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - Ino
+  deploy:
+      machine:
+        enabled: true
+      steps:
+        - attach_workspace:
+            at: .
+        - add_ssh_keys:
+            fingerprints:
+              - "60:1d:96:93:28:03:f0:9f:9a:3c:e7:35:37:94:a6:71"
+        - run:
+            name: ssh-key
+            command: echo ${SSH_KEY} >> ~/.ssh/known_hosts
+        - run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "pkill -e ino.out"
+        - run: scp -o "StrictHostKeyChecking=no" Ino/ino.out ${SSH_USER}@${SSH_HOST}:./Ino/
+        - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml ${SSH_USER}@${SSH_HOST}:./Ino/
+        - run: scp -o "StrictHostKeyChecking=no" -r Ino/migrations ${SSH_USER}@${SSH_HOST}:./Ino/
+        - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh ${SSH_USER}@${SSH_HOST}:./Ino/
+        - run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "cd Ino && chmod 755 deploy.sh && nohup ./deploy.sh >/dev/null 2>&1 </dev/null &"
+
+workflows:
+  version: 2
+  ino_deploy_work_flows:
+    jobs:
+      - test
+      - build:
+          requires:
+            - test
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
