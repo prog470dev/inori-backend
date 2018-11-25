@@ -41,12 +41,6 @@ jobs:
     working_directory: /go/src/github.com/prog470dev/inori-backend
     docker:
       - image: circleci/golang:1.9
-      - image: circleci/mysql:5.7
-        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_bin --innodb-large-prefix=true --innodb-file-format=Barracuda
-        environment:
-          MYSQL_USER: root
-          MYSQL_ROOT_PASSWORD: circleci
-          MYSQL_ALLOW_EMPTY_PASSWORD: true
     environment:
       - GOCACHE: "/tmp/go/cache"
     steps:
@@ -64,8 +58,7 @@ jobs:
             which dep || go get -v -u github.com/golang/dep/cmd/dep
             dep ensure
       - run: GOOS=linux GOARCH=amd64 go build -o ino.out
-      - run: mkdir Ino
-      - run: cp dbconfig.yml Ino && cp -r migrations Ino && cp ino.out Ino
+      - run: mkdir Ino && cp dbconfig.yml Ino && cp -r migrations Ino && cp ino.out Ino && cp .circleci/deploy.sh Ino
       - save_cache:
           key: go-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ .Revision }}
           paths:
@@ -88,10 +81,11 @@ jobs:
             name: ssh-key
             command: echo ${SSH_KEY} >> ~/.ssh/known_hosts
         - run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "pkill -e ino.out"
-        - run: scp -o "StrictHostKeyChecking=no" Ino/ino.out ${SSH_USER}@${SSH_HOST}:./Ino/
-        - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml ${SSH_USER}@${SSH_HOST}:./Ino/
-        - run: scp -o "StrictHostKeyChecking=no" -r Ino/migrations ${SSH_USER}@${SSH_HOST}:./Ino/
-        - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh ${SSH_USER}@${SSH_HOST}:./Ino/
+#        - run: scp -o "StrictHostKeyChecking=no" Ino/ino.out ${SSH_USER}@${SSH_HOST}:./Ino/
+#        - run: scp -o "StrictHostKeyChecking=no" Ino/dbconfig.yml ${SSH_USER}@${SSH_HOST}:./Ino/
+#        - run: scp -o "StrictHostKeyChecking=no" -r Ino/migrations ${SSH_USER}@${SSH_HOST}:./Ino/
+        - run: scp -o "StrictHostKeyChecking=no" -r Ino ${SSH_USER}@${SSH_HOST}:./Ino/
+#        - run: scp -o "StrictHostKeyChecking=no" .circleci/deploy.sh ${SSH_USER}@${SSH_HOST}:./Ino/
         - run: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "cd Ino && chmod 755 deploy.sh && nohup ./deploy.sh >/dev/null 2>&1 </dev/null &"
 
 workflows:
