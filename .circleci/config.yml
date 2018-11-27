@@ -30,9 +30,6 @@ jobs:
 #          name: DB Up
 #          command: make migrate/init
       - run:
-          name: Listen
-          command: docker ps
-      - run:
           name: Go Test
           command: go test -v ./...
 #      - run:
