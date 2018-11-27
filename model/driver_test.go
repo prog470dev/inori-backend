@@ -17,6 +17,16 @@ func TestModelDriver(t *testing.T) {
 
 	fmt.Println(dbx)
 
+	_, err = dbx.Exec("show databases;")
+	if err != nil {
+		t.Fatalf("failed %s", err)
+	}
+
+	_, err = dbx.Exec("use ino;")
+	if err != nil {
+		t.Fatalf("failed %s", err)
+	}
+
 	//
 	//driver := &Driver{
 	//	ID:        0,
