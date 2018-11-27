@@ -34,10 +34,10 @@ jobs:
           name: sql-migrate
           command: |
             go get github.com/rubenv/sql-migrate/...
-            ql-migrate up
-            ql-migrate status
-            ql-migrate down
-            ql-migrate status
+            sql-migrate up
+            sql-migrate status
+            sql-migrate down
+            sql-migrate status
       - run:
           name: Go Test
           command: go test -v ./...
