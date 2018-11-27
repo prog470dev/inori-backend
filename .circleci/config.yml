@@ -41,6 +41,11 @@ jobs:
       - run:
           name: Go Test
           command: go test -v ./...
+      - run:
+          name: sql-migrate-down
+          command: |
+            sql-migrate down
+            sql-migrate status
 #      - run:
 #          name: DB Down
 #          command: make migrate/down
