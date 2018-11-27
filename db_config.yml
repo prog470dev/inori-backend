@@ -1,0 +1,6 @@
+user: root
+password: password
+protocol: tcp
+host: localhost
+port: 3306
+database: ino

@@ -1,6 +1,8 @@
-user: root
-password: password
-protocol: tcp
-host: localhost
-port: 3306
-database: ino
+development:
+    dialect: mysql
+    dir: migrations_test
+    datasource: root:password@tcp(127.0.0.1)/ino?parseTime=true&charset=utf8mb4&interpolateParams=true
+production:
+    dialect: mysql
+    dir: migrations_test
+    datasource: root:password@tcp(127.0.0.1)/ino?parseTime=true&charset=utf8mb4&interpolateParams=true
