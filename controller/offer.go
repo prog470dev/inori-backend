@@ -179,11 +179,23 @@ func (o *Offer) DeleteOffer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// offer の削除 (関連reservationは削除済み)
+	_, err = offer.Delete(o.DB)
+	if NotFoundOrErr(w, err) != nil {
+		return
+	}
+
 	//プッシュ通知 (複数のライダ向け)
 	for _, reserve := range reservations {
-		token, err := model.TokenOneRider(o.DB, reserve.ID)
+		token, err := model.TokenOneRider(o.DB, reserve.RiderID)
 		if err != nil {
-			NotFoundOrErr(w, err)
+			JSON(w, http.StatusOK, struct {
+				ID      int64  `json:"id"`
+				Message string `json:"message"`
+			}{
+				ID:      offer.ID,
+				Message: "Failed to send push notification.",
+			})
 			return
 		}
 		pushData := &PushData{
@@ -195,16 +207,15 @@ func (o *Offer) DeleteOffer(w http.ResponseWriter, r *http.Request) {
 		}
 		err = SendPushMessage(pushData)
 		if err != nil {
-			log.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
+			JSON(w, http.StatusOK, struct {
+				ID      int64  `json:"id"`
+				Message string `json:"message"`
+			}{
+				ID:      offer.ID,
+				Message: "Failed to send push notification.",
+			})
 			return
 		}
-	}
-
-	// offer の削除 (関連reservationは削除済み)
-	_, err = offer.Delete(o.DB)
-	if NotFoundOrErr(w, err) != nil {
-		return
 	}
 
 	JSON(w, http.StatusOK, struct {
