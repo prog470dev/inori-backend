@@ -12,7 +12,8 @@ jobs:
         environment:
           MYSQL_USER: root
           MYSQL_ROOT_PASSWORD: password #TODO: ここを password にする必要がありそう？
-          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          #MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_DATABASE: ino
     steps:
       - checkout
       - restore_cache:
