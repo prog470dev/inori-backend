@@ -22,6 +22,11 @@ func TestModelDriver(t *testing.T) {
 		t.Fatalf("failed %s", err)
 	}
 
+	_, err = dbx.Exec("create database ino;")
+	if err != nil {
+		t.Fatalf("failed %s", err)
+	}
+
 	_, err = dbx.Exec("use ino;")
 	if err != nil {
 		t.Fatalf("failed %s", err)
