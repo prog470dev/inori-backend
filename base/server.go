@@ -73,7 +73,7 @@ func (s *Server) Route() *mux.Router {
 	r.HandleFunc("/offers/{offer_id:[0-9]+}", middle(offer.DeleteOffer)).Methods("DELETE")
 
 	/**  Reservation: 一覧（選択ライダ）**/
-	r.HandleFunc("/reservations", middle(reservation.GetRiderOffers)).Methods("GET") //予定変更 reservations を返す.
+	r.HandleFunc("/reservations", middle(reservation.GetRiderReservations)).Methods("GET") //予定変更 reservations を返す.
 	/**  Reservation: 追加 **/
 	r.HandleFunc("/reservations", middle(reservation.CreateReservation)).Methods("POST")
 	/**  Reservation: 削除 **/

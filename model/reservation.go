@@ -36,6 +36,8 @@ func ReservationsWithRider(db *sql.DB, riderID int64) ([]Reservation, error) {
 	// 支払い受付は12時間あとまで
 	currentTime = currentTime.Add(time.Duration(-12) * time.Hour)
 
+	log.Println("currentTime: ", currentTime)
+
 	rows, err := db.Query("SELECT * FROM reservations WHERE rider_id = ? AND departure_time > ? ", riderID, currentTime)
 	if err != nil {
 		return nil, err
@@ -54,7 +56,10 @@ func ReservationsWithRider(db *sql.DB, riderID int64) ([]Reservation, error) {
 			return nil, err
 		}
 		reservations = append(reservations, reservation)
+		log.Println("reservation.DepartureTime> ", reservation.DepartureTime)
 	}
+
+	log.Println("len(reservations): ", len(reservations))
 
 	return reservations, nil
 }

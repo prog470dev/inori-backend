@@ -15,7 +15,7 @@ type Reservation struct {
 	DB *sql.DB
 }
 
-func (re *Reservation) GetRiderOffers(w http.ResponseWriter, r *http.Request) {
+func (re *Reservation) GetRiderReservations(w http.ResponseWriter, r *http.Request) {
 	u, err := url.Parse(r.URL.RequestURI())
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
