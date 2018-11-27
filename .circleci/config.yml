@@ -31,7 +31,7 @@ jobs:
 #          command: make migrate/init
       - run:
           name: Listen
-          command: lsof -i:3306
+          command: cat /etc/redhat-release || /etc/debian_version || /etc/lsb-release
       - run:
           name: Go Test
           command: go test -v ./...
