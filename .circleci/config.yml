@@ -31,6 +31,11 @@ jobs:
 #          name: DB Up
 #          command: make migrate/init
       - run:
+          name: sql-migrate
+          command: |
+            go get github.com/rubenv/sql-migrate/...
+            sql-migrate --help
+      - run:
           name: Go Test
           command: go test -v ./...
 #      - run:
