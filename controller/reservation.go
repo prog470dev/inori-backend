@@ -72,11 +72,9 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 	}
 
 	// 満員（クライアント側の同期がリアルタイムやられていれば基本発生しない）
+	log.Println(len(reservations), int(offer.RiderCapacity))
 	if len(reservations) == int(offer.RiderCapacity) {
-		log.Println(len(reservations), int(offer.RiderCapacity))
-		w.WriteHeader(http.StatusBadRequest) //TODO: 満員であることを伝えるボディを返す
-
-		JSON(w, http.StatusOK, struct {
+		JSON(w, http.StatusBadRequest, struct {
 			Message string `json:"message"`
 		}{
 			Message: "no capacity",
@@ -103,7 +101,13 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 	//プッシュ通知 (ドライバ向け)
 	token, err := model.TokenOneDriver(re.DB, offer.DriverID)
 	if err != nil {
-		NotFoundOrErr(w, err)
+		JSON(w, http.StatusOK, struct {
+			ID      int64  `json:"id"`
+			Message string `json:"message"`
+		}{
+			ID:      id,
+			Message: "Failed to send push notification.",
+		})
 		return
 	}
 	pushData := &PushData{
@@ -115,8 +119,13 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 	}
 	err = SendPushMessage(pushData)
 	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		JSON(w, http.StatusOK, struct {
+			ID      int64  `json:"id"`
+			Message string `json:"message"`
+		}{
+			ID:      id,
+			Message: "Failed to send push notification.",
+		})
 		return
 	}
 
@@ -149,12 +158,24 @@ func (re *Reservation) CancelReservation(w http.ResponseWriter, r *http.Request)
 	//プッシュ通知 (ドライバ向け)
 	offer, err := model.OfferOne(re.DB, reservation.OfferID)
 	if err != nil {
-		NotFoundOrErr(w, err)
+		JSON(w, http.StatusOK, struct {
+			ID      int64  `json:"id"`
+			Message string `json:"message"`
+		}{
+			ID:      reservationID,
+			Message: "Failed to send push notification.",
+		})
 		return
 	}
 	token, err := model.TokenOneDriver(re.DB, offer.DriverID)
 	if err != nil {
-		NotFoundOrErr(w, err)
+		JSON(w, http.StatusOK, struct {
+			ID      int64  `json:"id"`
+			Message string `json:"message"`
+		}{
+			ID:      reservationID,
+			Message: "Failed to send push notification.",
+		})
 		return
 	}
 	pushData := &PushData{
@@ -166,8 +187,13 @@ func (re *Reservation) CancelReservation(w http.ResponseWriter, r *http.Request)
 	}
 	err = SendPushMessage(pushData)
 	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		JSON(w, http.StatusOK, struct {
+			ID      int64  `json:"id"`
+			Message string `json:"message"`
+		}{
+			ID:      reservationID,
+			Message: "Failed to send push notification.",
+		})
 		return
 	}
 
