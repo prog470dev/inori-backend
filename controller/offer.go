@@ -179,6 +179,12 @@ func (o *Offer) DeleteOffer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// offer の削除 (関連reservationは削除済み)
+	_, err = offer.Delete(o.DB)
+	if NotFoundOrErr(w, err) != nil {
+		return
+	}
+
 	//プッシュ通知 (複数のライダ向け)
 	for _, reserve := range reservations {
 		token, err := model.TokenOneRider(o.DB, reserve.ID)
@@ -199,12 +205,6 @@ func (o *Offer) DeleteOffer(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-	}
-
-	// offer の削除 (関連reservationは削除済み)
-	_, err = offer.Delete(o.DB)
-	if NotFoundOrErr(w, err) != nil {
-		return
 	}
 
 	JSON(w, http.StatusOK, struct {
