@@ -91,7 +91,7 @@ jobs:
               ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "chmod 755 kill.sh && ./kill.sh"
         - run:
             name: Copy
-            command: scp -o "StrictHostKeyChecking=no" -r Ino ${SSH_USER}@${SSH_HOST}:./Ino/
+            command: scp -o "StrictHostKeyChecking=no" -r Ino ${SSH_USER}@${SSH_HOST}:./
         - run:
             name: Deploy
             command: ssh -o "StrictHostKeyChecking=no" ${SSH_USER}@${SSH_HOST} "cd Ino && chmod 755 deploy.sh && nohup ./deploy.sh >/dev/null 2>&1 </dev/null &"
