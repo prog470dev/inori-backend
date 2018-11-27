@@ -27,11 +27,8 @@ jobs:
           command: |
             which dep || go get -v -u github.com/golang/dep/cmd/dep
             dep ensure
-#      - run:
-#          name: DB Up
-#          command: make migrate/init
       - run:
-          name: sql-migrate
+          name: sql-migrate-up
           command: |
             which sql-migrate || go get github.com/rubenv/sql-migrate/...
             sql-migrate up
@@ -44,9 +41,6 @@ jobs:
           command: |
             sql-migrate down
             sql-migrate status
-#      - run:
-#          name: DB Down
-#          command: make migrate/down
       - save_cache:
           key: go-vendor-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Gopkg.lock" }}
           paths:
