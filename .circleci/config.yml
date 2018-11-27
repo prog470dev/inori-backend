@@ -27,8 +27,14 @@ jobs:
             which dep || go get -v -u github.com/golang/dep/cmd/dep
             dep ensure
       - run:
+          name: DB Up
+          command: make migrate/init
+      - run:
           name: Go Test
           command: go test -v ./...
+      - run:
+          name: DB Down
+          command: make migrate/down
       - save_cache:
           key: go-vendor-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Gopkg.lock" }}
           paths:
