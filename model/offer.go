@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+const (
+	reservableTime = 1  // 締切を１時間前まで
+	verifiableTime = -1 // 確認できるのは１時間後まで
+)
+
 type Offer struct {
 	ID            int64  `db:"id" json:"id"`
 	DriverID      int64  `db:"driver_id" json:"driver_id"`
@@ -41,7 +46,6 @@ func OfferOne(db *sql.DB, id int64) (*Offer, error) {
 	//TODO: 時刻の制約を追加するか検討
 	//currentTime := time.Now()
 
-	//if err := db.QueryRow("SELECT * FROM offers WHERE id = ? AND departure_time > ? LIMIT 1", id, currentTime).Scan(
 	if err := db.QueryRow("SELECT * FROM offers WHERE id = ? LIMIT 1", id).Scan(
 		&offer.ID,
 		&offer.DriverID,
@@ -76,8 +80,7 @@ func OfferOneWithoutTime(db *sql.DB, id int64) (*Offer, error) {
 func OffersAll(db *sql.DB) ([]Offer, error) {
 	currentTime := time.Now()
 
-	// 締切を１時間前まで
-	currentTime = currentTime.Add(time.Duration(1) * time.Hour)
+	currentTime = currentTime.Add(time.Duration(reservableTime) * time.Hour)
 
 	rows, err := db.Query("SELECT * FROM offers WHERE departure_time > ?", currentTime)
 	if err != nil {
@@ -107,8 +110,7 @@ func OffersAll(db *sql.DB) ([]Offer, error) {
 func OffersWithDriver(db *sql.DB, driverID int64) ([]Offer, error) {
 	currentTime := time.Now()
 
-	// 確認できるのは１時間後まで
-	currentTime = currentTime.Add(time.Duration(-1) * time.Hour)
+	currentTime = currentTime.Add(time.Duration(verifiableTime) * time.Hour)
 
 	rows, err := db.Query("SELECT * FROM offers WHERE driver_id = ? AND departure_time > ?", driverID, currentTime)
 	if err != nil {
