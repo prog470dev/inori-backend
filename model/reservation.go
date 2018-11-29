@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+const (
+	paymentDelay = -12 // 支払い受付は12時間あとまで
+)
+
 type Reservation struct {
 	ID            int64  `db:"id" json:"id"`
 	OfferID       int64  `db:"offer_id" json:"offer_id"`
@@ -33,8 +37,7 @@ func ReservationOne(db *sql.DB, id int64) (*Reservation, error) {
 func ReservationsWithRider(db *sql.DB, riderID int64) ([]Reservation, error) {
 	currentTime := time.Now()
 
-	// 支払い受付は12時間あとまで
-	currentTime = currentTime.Add(time.Duration(-12) * time.Hour)
+	currentTime = currentTime.Add(time.Duration(paymentDelay) * time.Hour)
 
 	rows, err := db.Query("SELECT * FROM reservations WHERE rider_id = ? AND departure_time > ? ", riderID, currentTime)
 	if err != nil {
