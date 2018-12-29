@@ -21,8 +21,12 @@ func (d *Demand) GetDemandRider(w http.ResponseWriter, r *http.Request) {
 	}
 
 	schedule := [7]model.Dem{}
-	// ?: テーブルから取り出されなかったデータ曜日,時間帯はどうなる？（nil?）
+	for i := 0; i < 7; i++ {
+		schedule[i].Day = int64(i)
+	}
+
 	dems, err := model.DemandOne(d.DB, riderID)
+
 	for _, dem := range dems {
 		day := dem.Day
 		dir := dem.Dir
@@ -58,12 +62,14 @@ func (d *Demand) ResisterDemandRider(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//TODO: 存在しない rider_id の場合は 400 を返す.
 	//TODO: トランザクション
 
 	// 削除
 	err := model.DeleteWithRider(d.DB, demRider.RiderID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	// 挿入
@@ -81,6 +87,7 @@ func (d *Demand) ResisterDemandRider(w http.ResponseWriter, r *http.Request) {
 			_, err := dem.Insert(d.DB)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
+				return
 			}
 		}
 
@@ -92,6 +99,7 @@ func (d *Demand) ResisterDemandRider(w http.ResponseWriter, r *http.Request) {
 			_, err = dem.Insert(d.DB)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
+				return
 			}
 		}
 	}
@@ -105,20 +113,30 @@ func (d *Demand) ResisterDemandRider(w http.ResponseWriter, r *http.Request) {
 
 func (d *Demand) GetDemandAggregate(w http.ResponseWriter, r *http.Request) {
 	days := model.DemAggResp{}
+	days.Days = [7][24 * 4]int{}
 
-	demandAgg, err := model.DemandAggregate(d.DB)
+	// 登下校の判定
+	dir := mux.Vars(r)["dir"]
+	if dir != "school" && dir != "home" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	//demandAgg, err := model.DemandAggregate(d.DB)
+	demandAgg, err := model.DemandAggregate(d.DB, dir)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	cnt := 0
-	day := []int{}
+	day := [24 * 4]int{}
 	for _, agg := range demandAgg {
-		day := append(day, int(agg.Value))
+		day[cnt%(24*4)] = int(agg.Value)
 		cnt++
 		if cnt%(24*4) == 0 {
-			days.Days = append(days.Days, day)
-			day = []int{}
+			days.Days[cnt/(24*4)-1] = day
+			day = [24 * 4]int{}
 		}
 	}
 

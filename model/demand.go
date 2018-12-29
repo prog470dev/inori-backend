@@ -1,6 +1,8 @@
 package model
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 type DemAtom struct {
 	Start int64 `json:"start"`
@@ -19,7 +21,7 @@ type DemRider struct {
 }
 
 type DemAggResp struct {
-	Days [][]int `json:"days"`
+	Days [7][24 * 4]int `json:"days"`
 }
 
 // TABLE: demand_school, demand_home
@@ -37,21 +39,21 @@ type DemandAgg struct {
 	Value    int64 `db:"value" json:"value"`
 }
 
-func DemandOne(db *sql.DB, riderID int64) ([]Demand, error) {
-	rows, err := db.Query("SELECT * FROM demand_aggregate WHERE rider_id = ?", riderID)
+func DemandOne(db *sql.DB, riderID int64) ([]*Demand, error) {
+	rows, err := db.Query("SELECT * FROM demand WHERE rider_id = ?", riderID)
 	if err != nil {
 		return nil, err
 	}
 
-	dems := []Demand{}
+	dems := []*Demand{}
 	for rows.Next() {
-		dem := Demand{}
+		dem := &Demand{}
 		err = rows.Scan(
-			dem.RiderID,
-			dem.Day,
-			dem.Dir,
-			dem.Start,
-			dem.End,
+			&dem.RiderID,
+			&dem.Day,
+			&dem.Dir,
+			&dem.Start,
+			&dem.End,
 		)
 		if err != nil {
 			return nil, err
@@ -63,18 +65,21 @@ func DemandOne(db *sql.DB, riderID int64) ([]Demand, error) {
 }
 
 // ino.demand_aggregate は別のテーブルだが、キャッシュ的な意味で使っている。
-func DemandAggregate(db *sql.DB) ([]DemandAgg, error) {
-	rows, err := db.Query("SELECT * FROM demand_aggregate")
+func DemandAggregate(db *sql.DB, dir string) ([]*DemandAgg, error) {
+	table := "demand_aggregate_" + dir
+
+	//TODO: bad smell!! (文字列連結)
+	rows, err := db.Query("SELECT * FROM " + table)
 	if err != nil {
 		return nil, err
 	}
 
-	aggs := []DemandAgg{}
+	aggs := []*DemandAgg{}
 	for rows.Next() {
-		demandAgg := DemandAgg{}
+		demandAgg := &DemandAgg{}
 		err = rows.Scan(
-			demandAgg.TimeZone,
-			demandAgg.Value,
+			&demandAgg.TimeZone,
+			&demandAgg.Value,
 		)
 		if err != nil {
 			return nil, err
