@@ -20,32 +20,23 @@ func (d *Demand) GetDemandRider(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	schedule := []model.Dem{}
+	schedule := [7]model.Dem{}
+	// ?: テーブルから取り出されなかったデータ曜日,時間帯はどうなる？（nil?）
+	dems, err := model.DemandOne(d.DB, riderID)
+	for _, dem := range dems {
+		day := dem.Day
+		dir := dem.Dir
 
-	for i := 0; i < 7; i++ {
-		dema1 := model.DemAtom{
-			Start: 10,
-			End:   15,
+		atom := model.DemAtom{
+			Start: dem.Start,
+			End:   dem.End,
 		}
 
-		startUp := 0
-		startDown := 0
-		if i%2 == 0 {
-			startUp = 20
-			startDown = 25
+		if dir == 0 {
+			schedule[day].School = atom
+		} else { //dir == 1
+			schedule[day].Home = atom
 		}
-
-		dema2 := model.DemAtom{
-			Start: int64(startUp),
-			End:   int64(startDown),
-		}
-
-		dem := model.Dem{
-			Day:    (int64(i)),
-			School: dema1,
-			Home:   dema2,
-		}
-		schedule = append(schedule, dem)
 	}
 
 	demRider := model.DemRider{
@@ -67,7 +58,45 @@ func (d *Demand) ResisterDemandRider(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := JSON(w, http.StatusOK, demRider)
+	//TODO: トランザクション
+
+	// 削除
+	err := model.DeleteWithRider(d.DB, demRider.RiderID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	// 挿入
+	for _, e := range demRider.Schedule {
+		var dem model.Demand
+
+		dem.RiderID = demRider.RiderID
+		dem.Day = e.Day
+
+		//school
+		dem.Dir = 0
+		dem.Start = e.School.Start
+		dem.End = e.School.End
+		if dem.Start != 0 && dem.End != 0 { //データなし
+			_, err := dem.Insert(d.DB)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+		}
+
+		//home
+		dem.Dir = 1
+		dem.Start = e.Home.Start
+		dem.End = e.Home.End
+		if dem.Start != 0 && dem.End != 0 { //データなし
+			_, err = dem.Insert(d.DB)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+		}
+	}
+
+	err = JSON(w, http.StatusOK, demRider)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -77,15 +106,23 @@ func (d *Demand) ResisterDemandRider(w http.ResponseWriter, r *http.Request) {
 func (d *Demand) GetDemandAggregate(w http.ResponseWriter, r *http.Request) {
 	days := model.DemAggResp{}
 
-	for i := 0; i < 7; i++ {
-		day := []int{}
-		for i := 0; i < 96; i++ {
-			day = append(day, 1)
-		}
-		days.Days = append(days.Days, day)
+	demandAgg, err := model.DemandAggregate(d.DB)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	err := JSON(w, http.StatusOK, days)
+	cnt := 0
+	day := []int{}
+	for _, agg := range demandAgg {
+		day := append(day, int(agg.Value))
+		cnt++
+		if cnt%(24*4) == 0 {
+			days.Days = append(days.Days, day)
+			day = []int{}
+		}
+	}
+
+	err = JSON(w, http.StatusOK, days)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
