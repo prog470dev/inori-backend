@@ -86,7 +86,7 @@ func (s *Server) Route() *mux.Router {
 	r.HandleFunc("/tokens/push/riders", middle(token.RegisterPushTokenRider)).Methods("POST")
 
 	/** Demand: 重要集計取得 **/
-	r.HandleFunc("/demand", middle(demand.GetDemandAggregate)).Methods("GET")
+	r.HandleFunc("/demand/aggregate/{dir:[a-z]+}", middle(demand.GetDemandAggregate)).Methods("GET")
 	/** Demand: ライダーの需要取得 **/
 	r.HandleFunc("/demand/{rider_id:[0-9]+}", middle(demand.GetDemandRider)).Methods("GET")
 	/** Demand: ライダーの需要登録 **/
