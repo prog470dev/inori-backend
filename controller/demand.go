@@ -104,6 +104,13 @@ func (d *Demand) ResisterDemandRider(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	//TODO: 定期実行処理に変更
+	err = model.Aggregate(d.DB)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	err = JSON(w, http.StatusOK, demRider)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -122,7 +129,6 @@ func (d *Demand) GetDemandAggregate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//demandAgg, err := model.DemandAggregate(d.DB)
 	demandAgg, err := model.DemandAggregate(d.DB, dir)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
