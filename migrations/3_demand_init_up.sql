@@ -17,6 +17,8 @@ CREATE TABLE ino.demand_aggregate_home (
     value       INT NOT NULL
 );
 
+INSERT INTO ino.riders (first_name, last_name, grade, major, mail, phone) values ("a", "a", "a", "a", "a", "a");
+
 -- 初期化
 INSERT ino.demand_aggregate_school (time_zone, value) values (0, 0);
 INSERT ino.demand_aggregate_school (time_zone, value) values (1, 0);

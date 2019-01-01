@@ -7,9 +7,11 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/prog470dev/inori-backend/controller"
 	"github.com/prog470dev/inori-backend/db"
+	"github.com/prog470dev/inori-backend/model"
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 type Server struct {
@@ -41,7 +43,20 @@ func (s *Server) Route() *mux.Router {
 	token := &controller.Token{s.db}
 	demand := &controller.Demand{s.db}
 
-	// HelloWorld
+	// 需要集計処理の定期アップデート
+	go func() {
+		t := time.NewTicker(10 * time.Minute)
+		for {
+			<-t.C
+			err := model.Aggregate(demand.DB)
+			if err != nil {
+				log.Println(err)
+			}
+		}
+		t.Stop()
+	}()
+
+	// Health Check
 	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "pong")
 	})
@@ -98,4 +113,5 @@ func (s *Server) Route() *mux.Router {
 func (s *Server) Run() {
 	inoPort := os.Getenv("INO_PORT")
 	log.Fatal(http.ListenAndServe(":"+inoPort, s.router))
+
 }
