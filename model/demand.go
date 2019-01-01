@@ -4,6 +4,8 @@ import (
 	"database/sql"
 )
 
+const resolution = 4
+
 type DemAtom struct {
 	Start int64 `json:"start"`
 	End   int64 `json:"end"`
@@ -112,7 +114,59 @@ func (d *Demand) Insert(db *sql.DB) (sql.Result, error) {
 }
 
 // 定期的な（初期は高頻度）集計処理
-func Aggregate() error {
-	//TODO: impl
+func Aggregate(db *sql.DB) error {
+	rows, err := db.Query("SELECT * FROM demand")
+	if err != nil {
+		return err
+	}
+
+	aggSchool := [24*resolution*7 + 1]int{} //最後に番兵が必要
+	aggHome := [24*resolution*7 + 1]int{}
+
+	for rows.Next() {
+		dem := &Demand{}
+		err = rows.Scan(
+			&dem.RiderID,
+			&dem.Day,
+			&dem.Dir,
+			&dem.Start,
+			&dem.End,
+		)
+		if err != nil {
+			return err
+		}
+
+		start := dem.Day*(24*resolution) + dem.Start
+		end := dem.Day*(24*resolution) + dem.End + 1
+
+		if dem.Dir == 0 {
+			aggSchool[start]++
+			aggSchool[end]--
+		} else { // dem.Dir == 1
+			aggHome[start]++
+			aggHome[end]--
+		}
+	}
+
+	// imos
+	for i := 0; i < len(aggSchool)-1; i++ {
+		if i > 0 {
+			aggSchool[i] += aggSchool[i-1]
+			aggHome[i] += aggHome[i-1]
+		}
+	}
+
+	// ループの分離理由: こちらは前のインデックスの要素に影響を受けないので、並列化の可能性があるため。
+	for i := 0; i < len(aggSchool)-1; i++ {
+		_, err := db.Exec("UPDATE demand_aggregate_school SET value=? WHERE time_zone=?", aggSchool[i], i)
+		if err != nil {
+			return err
+		}
+		_, err = db.Exec("UPDATE demand_aggregate_home SET value=? WHERE time_zone=?", aggHome[i], i)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

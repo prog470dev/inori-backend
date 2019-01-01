@@ -64,6 +64,7 @@ func (d *Demand) ResisterDemandRider(w http.ResponseWriter, r *http.Request) {
 
 	//TODO: 存在しない rider_id の場合は 400 を返す.
 	//TODO: トランザクション
+	//TODO: 不適切な時間指定のフィルタリング
 
 	// 削除
 	err := model.DeleteWithRider(d.DB, demRider.RiderID)
@@ -122,7 +123,6 @@ func (d *Demand) GetDemandAggregate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//demandAgg, err := model.DemandAggregate(d.DB)
 	demandAgg, err := model.DemandAggregate(d.DB, dir)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
