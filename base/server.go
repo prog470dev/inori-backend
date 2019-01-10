@@ -60,13 +60,13 @@ func (s *Server) Route() *mux.Router {
 	// ライダーへのレコメンド通知
 	go func() {
 		//TODO: 定刻に実行されるように実装（今は定期的に時刻をチェックしている）
-		t := time.NewTicker(60 * time.Minute)
+		t := time.NewTicker(60 * time.Minute) // 60毎にチェックして対象時刻の前後30分以内に入っているか確認
 		for {
 			<-t.C
-			targetTime, err := time.Parse("11:11", "20:00")
-			if err == nil &&
-				targetTime.After(time.Now().Add(-30*time.Minute)) &&
-				targetTime.Before(time.Now().Add(30*time.Minute)) {
+			jst, _ := time.LoadLocation("Asia/Tokyo")
+			targetTime := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 20, 0, 0, 0, jst)
+			if time.Now().In(jst).After(targetTime.Add(-30*time.Minute).Local()) &&
+				time.Now().In(jst).Before(targetTime.Add(30*time.Minute).Local()) {
 				err := recommend.PushRecommend()
 				if err != nil {
 					log.Println(err)
