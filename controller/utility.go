@@ -35,12 +35,20 @@ func SwitchTimeStrStyle(timeStr string) (string, error) {
 	return t.Format("2006-01-02 15:04:05"), nil
 }
 
-type PushData struct {
+type PushData struct { // 予約成立、予約破棄、オファー削除
 	To          string
 	Type        string
 	OfferID     int64
 	MessageBody string
 	Title       string
+}
+
+type PushRecommendData struct { // レコメンド通知
+	To          string
+	Type        string
+	MessageBody string
+	Title       string
+	//TODO: その他必要な情報は何もない？
 }
 
 func SendPushMessage(pushData *PushData) error {
@@ -77,10 +85,60 @@ func SendPushMessage(pushData *PushData) error {
 		return err
 	}
 
-	//テスト
-	var buf bytes.Buffer
-	buf.Write(b)
-	log.Println(buf.String())
+	req, err := http.NewRequest(
+		"POST",
+		"https://exp.host/--/api/v2/push/send",
+		bytes.NewBuffer(b),
+	)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	log.Println(resp.Status)
+
+	return nil
+}
+
+func SendPushRecommendMessage(pushData *PushRecommendData) error {
+	type data struct {
+		Type        string `json:"type"`
+		MessageBody string `json:"message_title"`
+	}
+
+	body := struct {
+		To        string `json:"to"`
+		Data      data   `json:"data"`
+		Title     string `json:"title"`
+		Body      string `json:"body"`
+		Sound     string `json:"sound"`
+		Badge     int64  `json:"badge"`
+		ChannelId string `json:"channelId"` //TODO: string と nil を両立
+	}{
+		To: pushData.To,
+		Data: data{
+			Type:        pushData.Type,
+			MessageBody: pushData.MessageBody,
+		},
+		Title:     pushData.Title, //TODO: 空だとエラー
+		Body:      "",
+		Sound:     "default",
+		Badge:     1,
+		ChannelId: "null",
+	}
+
+	b, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
 
 	req, err := http.NewRequest(
 		"POST",

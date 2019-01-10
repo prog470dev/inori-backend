@@ -42,6 +42,7 @@ func (s *Server) Route() *mux.Router {
 	reservation := &controller.Reservation{s.db}
 	token := &controller.Token{s.db}
 	demand := &controller.Demand{s.db}
+	recommend := &controller.Recommend{s.db}
 
 	// 需要集計処理の定期アップデート
 	go func() {
@@ -51,6 +52,25 @@ func (s *Server) Route() *mux.Router {
 			err := model.Aggregate(demand.DB)
 			if err != nil {
 				log.Println(err)
+			}
+		}
+		t.Stop()
+	}()
+
+	// ライダーへのレコメンド通知
+	go func() {
+		//TODO: 定刻に実行されるように実装（今は定期的に時刻をチェックしている）
+		t := time.NewTicker(60 * time.Minute)
+		for {
+			<-t.C
+			targetTime, err := time.Parse("11:11", "20:00")
+			if err == nil &&
+				targetTime.After(time.Now().Add(-30*time.Minute)) &&
+				targetTime.Before(time.Now().Add(30*time.Minute)) {
+				err := recommend.PushRecommend()
+				if err != nil {
+					log.Println(err)
+				}
 			}
 		}
 		t.Stop()
