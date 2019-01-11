@@ -41,6 +41,31 @@ type DemandAgg struct {
 	Value    int64 `db:"value" json:"value"`
 }
 
+func DemandAll(db *sql.DB) ([]*Demand, error) {
+	rows, err := db.Query("SELECT * FROM demand")
+	if err != nil {
+		return nil, err
+	}
+
+	dems := []*Demand{}
+	for rows.Next() {
+		dem := &Demand{}
+		err = rows.Scan(
+			&dem.RiderID,
+			&dem.Day,
+			&dem.Dir,
+			&dem.Start,
+			&dem.End,
+		)
+		if err != nil {
+			return nil, err
+		}
+		dems = append(dems, dem)
+	}
+
+	return dems, nil
+}
+
 func DemandOne(db *sql.DB, riderID int64) ([]*Demand, error) {
 	rows, err := db.Query("SELECT * FROM demand WHERE rider_id = ?", riderID)
 	if err != nil {
