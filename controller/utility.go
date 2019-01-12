@@ -63,6 +63,7 @@ func SendPushMessage(pushData *PushData) error {
 		Data      data   `json:"data"`
 		Title     string `json:"title"`
 		Body      string `json:"body"`
+		Priority  string `json:"priority"`
 		Sound     string `json:"sound"`
 		Badge     int64  `json:"badge"`
 		ChannelId string `json:"channelId"` //TODO: string と nil を両立
@@ -75,6 +76,7 @@ func SendPushMessage(pushData *PushData) error {
 		},
 		Title:     pushData.Title, //TODO: 空だとエラー
 		Body:      "",
+		Priority:  "high",
 		Sound:     "default",
 		Badge:     1,
 		ChannelId: "null",
@@ -119,8 +121,8 @@ func SendPushRecommendMessage(pushData *PushRecommendData) error {
 		Data      data   `json:"data"`
 		Title     string `json:"title"`
 		Body      string `json:"body"`
+		Priority  string `json:"priority"`
 		Sound     string `json:"sound"`
-		Badge     int64  `json:"badge"`
 		ChannelId string `json:"channelId"` //TODO: string と nil を両立
 	}{
 		To: pushData.To,
@@ -130,8 +132,8 @@ func SendPushRecommendMessage(pushData *PushRecommendData) error {
 		},
 		Title:     pushData.Title, //TODO: 空だとエラー
 		Body:      "",
+		Priority:  "high",
 		Sound:     "default",
-		Badge:     1,
 		ChannelId: "null",
 	}
 
