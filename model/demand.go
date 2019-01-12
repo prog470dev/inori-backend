@@ -4,7 +4,7 @@ import (
 	"database/sql"
 )
 
-const resolution = 4
+const Resolution = 4
 
 type DemAtom struct {
 	Start int64 `json:"start"`
@@ -145,8 +145,8 @@ func Aggregate(db *sql.DB) error {
 		return err
 	}
 
-	aggSchool := [24*resolution*7 + 1]int{} //最後に番兵が必要
-	aggHome := [24*resolution*7 + 1]int{}
+	aggSchool := [24*Resolution*7 + 1]int{} //最後に番兵が必要
+	aggHome := [24*Resolution*7 + 1]int{}
 
 	for rows.Next() {
 		dem := &Demand{}
@@ -161,8 +161,8 @@ func Aggregate(db *sql.DB) error {
 			return err
 		}
 
-		start := dem.Day*(24*resolution) + dem.Start
-		end := dem.Day*(24*resolution) + dem.End + 1
+		start := dem.Day*(24*Resolution) + dem.Start
+		end := dem.Day*(24*Resolution) + dem.End + 1
 
 		if dem.Dir == 0 {
 			aggSchool[start]++

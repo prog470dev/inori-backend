@@ -63,11 +63,23 @@ func (s *Server) Route() *mux.Router {
 		t := time.NewTicker(60 * time.Minute) // 60毎にチェックして対象時刻の前後30分以内に入っているか確認
 		for {
 			<-t.C
+
 			jst, _ := time.LoadLocation("Asia/Tokyo")
-			targetTime := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 20, 0, 0, 0, jst)
-			if time.Now().In(jst).After(targetTime.Add(-30*time.Minute).Local()) &&
-				time.Now().In(jst).Before(targetTime.Add(30*time.Minute).Local()) {
-				err := recommend.PushRecommend()
+			schoolTime := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 21, 0, 0, 0, jst)
+			homeTime := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 15, 0, 0, 0, jst)
+
+			// 登校方向（school）
+			if time.Now().In(jst).After(schoolTime.Add(-30*time.Minute).Local()) &&
+				time.Now().In(jst).Before(schoolTime.Add(30*time.Minute).Local()) {
+				err := recommend.PushRecommend(0)
+				if err != nil {
+					log.Println(err)
+				}
+			}
+			// 帰宅方向（home）
+			if time.Now().In(jst).After(homeTime.Add(-30*time.Minute).Local()) &&
+				time.Now().In(jst).Before(homeTime.Add(30*time.Minute).Local()) {
+				err := recommend.PushRecommend(1)
 				if err != nil {
 					log.Println(err)
 				}
