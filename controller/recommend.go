@@ -3,7 +3,9 @@ package controller
 import (
 	"database/sql"
 	"fmt"
+	"github.com/gorilla/mux"
 	"github.com/prog470dev/inori-backend/model"
+	"net/http"
 	"time"
 )
 
@@ -26,6 +28,33 @@ var weekDays = map[string]int{
 	"Thursday":  4,
 	"Friday":    5,
 	"Saturday":  6,
+}
+
+func (rec *Recommend) ForcePushRecommend(w http.ResponseWriter, r *http.Request) {
+	dirStr, ok := mux.Vars(r)["dir"]
+	if ok != true {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var dir int
+	if dirStr == "school" {
+		dir = 0
+	} else if dirStr == "home" {
+		dir = 1
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err := rec.PushRecommend(int(dir))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	return
 }
 
 func (rec *Recommend) PushRecommend(dir int) error { //dir: 目的方向（school->0, home->1）

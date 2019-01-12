@@ -17,6 +17,7 @@ type Driver struct {
 func (d *Driver) GetDriverDetail(w http.ResponseWriter, r *http.Request) {
 	driverID, err := strconv.ParseInt(mux.Vars(r)["driver_id"], 10, 64)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 

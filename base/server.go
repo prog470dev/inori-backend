@@ -139,6 +139,9 @@ func (s *Server) Route() *mux.Router {
 	/** Demand: ライダーの需要登録 **/
 	r.HandleFunc("/demand", middle(demand.ResisterDemandRider)).Methods("POST")
 
+	/** Recommend: 強制実行 **/
+	r.HandleFunc("/recommend/{dir:[a-z]+}", middle(recommend.ForcePushRecommend)).Methods("GET")
+
 	return r
 }
 
