@@ -65,6 +65,16 @@ func TestCalcAccumulation(t *testing.T) {
 		},
 	}
 
+	// テストケース作成簡易化のための修正（DBではtime.RFC3339形式になっている）
+	for i := 0; i < len(offers); i++ {
+		t, err := time.Parse("2006-01-02 15:04:05", offers[i].DepartureTime)
+		if err != nil {
+			continue
+		}
+		offers[i].DepartureTime = t.Format(time.RFC3339)
+		fmt.Println(offers[i].DepartureTime)
+	}
+
 	nextWeekDay := weekDays["Saturday"] // 2019-01-11(金曜日)の翌日
 	tZone0 := model.Resolution * 8      // 1つのオファーが重なっている時間
 	tZone1 := model.Resolution * 10     // 2つのオファーが重なっている時間

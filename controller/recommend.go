@@ -74,7 +74,7 @@ func calcAccumulation(offers []model.Offer) [7][24 * model.Resolution]int {
 	offerCounts := [7][24 * model.Resolution]int{}
 
 	for _, offer := range offers {
-		departureTime, err := time.Parse("2006-01-02 15:04:05", offer.DepartureTime)
+		departureTime, err := time.Parse(time.RFC3339, offer.DepartureTime)
 		if err != nil {
 			continue
 		}
