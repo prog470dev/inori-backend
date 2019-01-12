@@ -42,6 +42,7 @@ func (s *Server) Route() *mux.Router {
 	reservation := &controller.Reservation{s.db}
 	token := &controller.Token{s.db}
 	demand := &controller.Demand{s.db}
+	recommend := &controller.Recommend{s.db}
 
 	// 需要集計処理の定期アップデート
 	go func() {
@@ -51,6 +52,39 @@ func (s *Server) Route() *mux.Router {
 			err := model.Aggregate(demand.DB)
 			if err != nil {
 				log.Println(err)
+			}
+		}
+		t.Stop()
+	}()
+
+	// ライダーへのレコメンド通知
+	go func() {
+		//TODO: 定刻に実行されるように実装（今は定期的に時刻をチェックしている）
+		//t := time.NewTicker(60 * time.Minute) // 60毎にチェックして対象時刻の前後30分以内に入っているか確認
+		t := time.NewTicker(60 * time.Second)
+		for {
+			<-t.C
+
+			jst, _ := time.LoadLocation("Asia/Tokyo")
+			//schoolTime := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 21, 0, 0, 0, jst)
+			schoolTime := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 21, 30, 0, 0, jst)
+			homeTime := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 15, 0, 0, 0, jst)
+
+			// 登校方向（school）
+			if time.Now().In(jst).After(schoolTime.Add(-30*time.Minute).Local()) &&
+				time.Now().In(jst).Before(schoolTime.Add(30*time.Minute).Local()) {
+				err := recommend.PushRecommend(0)
+				if err != nil {
+					log.Println(err)
+				}
+			}
+			// 帰宅方向（home）
+			if time.Now().In(jst).After(homeTime.Add(-30*time.Minute).Local()) &&
+				time.Now().In(jst).Before(homeTime.Add(30*time.Minute).Local()) {
+				err := recommend.PushRecommend(1)
+				if err != nil {
+					log.Println(err)
+				}
 			}
 		}
 		t.Stop()
