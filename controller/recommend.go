@@ -57,8 +57,8 @@ func (rec *Recommend) PushRecommend(dir int) error { //dir: 目的方向（schoo
 		pushData := &PushRecommendData{
 			To:          token.PushToken,
 			Type:        "recommend_offer",
-			MessageBody: fmt.Sprintf("予約希望時間帯に%d件のオファーがあります。", sum),
-			Title:       fmt.Sprintf("予約希望時間帯に%d件のオファーがあります。", sum),
+			MessageBody: fmt.Sprintf("スケジュール内のオファーが%d件あります。", sum),
+			Title:       fmt.Sprintf("スケジュール内のオファーが%d件あります。", sum),
 		}
 		err = SendPushRecommendMessage(pushData)
 		if err != nil {
