@@ -6,7 +6,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/prog470dev/inori-backend/model"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -32,13 +31,23 @@ var weekDays = map[string]int{
 }
 
 func (rec *Recommend) ForcePushRecommend(w http.ResponseWriter, r *http.Request) {
-	dir, err := strconv.ParseInt(mux.Vars(r)["dir"], 10, 64)
-	if err != nil {
+	dirStr, ok := mux.Vars(r)["dir"]
+	if ok != true {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	err = rec.PushRecommend(int(dir))
+	var dir int
+	if dirStr == "school" {
+		dir = 0
+	} else if dirStr == "home" {
+		dir = 1
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err := rec.PushRecommend(int(dir))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
