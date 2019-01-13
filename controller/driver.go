@@ -133,12 +133,12 @@ func (d *Driver) PostImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, fileHeader, err := r.FormFile("image")
+	_, fileHeader, err := r.FormFile("face_image")
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	file, err := imageupload.Process(r, "image")
+	file, err := imageupload.Process(r, "face_image")
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
