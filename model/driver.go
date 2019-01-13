@@ -69,6 +69,15 @@ func (d *Driver) Update(db *sql.DB) (sql.Result, error) {
 	return result, nil
 }
 
+func (d *Driver) UpdateImage(db *sql.DB) (sql.Result, error) {
+	result, err := db.Exec("UPDATE drivers SET image_url=? WHERE id = ?", d.ImageUrl, d.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func (d *Driver) Insert(db *sql.DB) (sql.Result, error) {
 	result, err := db.Exec("INSERT INTO drivers (first_name, last_name, grade, major, mail, phone, car_color, car_number, image_url) values"+
 		" (?, ?, ?, ?, ?, ?, ?, ?, ?) ",

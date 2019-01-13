@@ -4,10 +4,20 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
+
+type sectionReadCloser struct {
+	*io.SectionReader
+}
 
 func JSON(w http.ResponseWriter, code int, data interface{}) error {
 	w.WriteHeader(code)
@@ -163,4 +173,38 @@ func SendPushRecommendMessage(pushData *PushRecommendData) error {
 	log.Println(resp.Status)
 
 	return nil
+}
+
+//S3へのアップロード
+func AddFileToS3(fileName string, file io.ReadSeeker) (string, error) {
+	const (
+		S3_REGION = "ap-northeast-1"
+		S3_BUCKET = "ino-profile-image"
+	)
+
+	id := os.Getenv("AWS_S3_ID")
+	secret := os.Getenv("AWS_S3_SECRET")
+	creds := credentials.NewStaticCredentials(id, secret, "")
+
+	s, err := session.NewSession(&aws.Config{
+		Credentials: creds,
+		Region:      aws.String(S3_REGION)},
+	)
+	if err != nil {
+		return "", err
+	}
+
+	_, err = s3.New(s).PutObject(&s3.PutObjectInput{
+		Bucket:      aws.String(S3_BUCKET),
+		Key:         aws.String(fileName),
+		Body:        file,
+		ContentType: aws.String("image/jpeg"),
+	})
+	if err != nil {
+		return "", err
+	}
+
+	url := "https://s3-" + S3_REGION + ".amazonaws.com/" + S3_BUCKET + "/" + fileName
+
+	return url, nil
 }

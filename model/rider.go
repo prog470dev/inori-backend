@@ -63,6 +63,15 @@ func (d *Rider) Update(db *sql.DB) (sql.Result, error) {
 	return result, nil
 }
 
+func (d *Rider) UpdateImage(db *sql.DB) (sql.Result, error) {
+	result, err := db.Exec("UPDATE riders SET image_url=? WHERE id = ?", d.ImageUrl, d.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func (d *Rider) Insert(db *sql.DB) (sql.Result, error) {
 	result, err := db.Exec("INSERT INTO riders (first_name, last_name, grade, major, mail, phone, image_url) values"+
 		" (?, ?, ?, ?, ?, ?, ?) ",
