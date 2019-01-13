@@ -19,15 +19,6 @@ type Offer struct {
 type OfferResp struct {
 	Offer          model.Offer `json:"offer"`
 	ReservedRiders []int64     `json:"reserved_riders"`
-
-	/** 予備のデータ構造 **/
-	//ID             int64         `json:"id"`
-	//Driver         model.Driver  `json:"driver"`
-	//Start          string        `json:"start"`
-	//Goal           string        `json:"goal"`
-	//DepartureTime  string        `json:"departure_time"`
-	//RiderCapacity  int64         `json:"rider_capacity"`
-	//ReservedRiders []model.Rider `json:"reserved_riders"`
 }
 
 func (o *Offer) GetOffers(w http.ResponseWriter, r *http.Request) {
@@ -94,7 +85,7 @@ func (o *Offer) GetOffers(w http.ResponseWriter, r *http.Request) {
 		resps = append(resps, resp)
 	}
 
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		Offers []OfferResp `json:"offers"`
 	}{
 		Offers: resps,
@@ -137,7 +128,7 @@ func (o *Offer) GetOfferDetail(w http.ResponseWriter, r *http.Request) {
 	}
 	offer.DepartureTime = t
 
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		Offer          model.Offer `json:"offer"`
 		ReservedRiders []int64     `json:"reserved_riders"`
 	}{
@@ -189,7 +180,7 @@ func (o *Offer) DeleteOffer(w http.ResponseWriter, r *http.Request) {
 	for _, reserve := range reservations {
 		token, err := model.TokenOneRider(o.DB, reserve.RiderID)
 		if err != nil {
-			JSON(w, http.StatusOK, struct {
+			_ = JSON(w, http.StatusOK, struct {
 				ID      int64  `json:"id"`
 				Message string `json:"message"`
 			}{
@@ -207,7 +198,7 @@ func (o *Offer) DeleteOffer(w http.ResponseWriter, r *http.Request) {
 		}
 		err = SendPushMessage(pushData)
 		if err != nil {
-			JSON(w, http.StatusOK, struct {
+			_ = JSON(w, http.StatusOK, struct {
 				ID      int64  `json:"id"`
 				Message string `json:"message"`
 			}{
@@ -218,7 +209,7 @@ func (o *Offer) DeleteOffer(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		ID int64 `json:"id"`
 	}{
 		ID: offer.ID,
@@ -245,7 +236,7 @@ func (d *Offer) CreateOffer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		ID int64 `json:"id"`
 	}{
 		ID: id,

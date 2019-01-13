@@ -27,7 +27,7 @@ func (d *Driver) GetDriverDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		Driver model.Driver `json:"driver"`
 	}{
 		Driver: *driver,
@@ -54,7 +54,7 @@ func (d *Driver) UpdateDriver(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		Driver model.Driver `json:"driver"`
 	}{
 		Driver: driver,
@@ -77,8 +77,7 @@ func (d *Driver) SignInDriver(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// サインイン成功
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		Driver model.Driver `json:"driver"`
 	}{
 		Driver: *driver,
@@ -106,7 +105,7 @@ func (d *Driver) SignUpDriver(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		ID int64 `json:"id"`
 	}{
 		ID: id,

@@ -26,7 +26,7 @@ func (d *Rider) GetRiderDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		Rider model.Rider `json:"rider"`
 	}{
 		Rider: *rider,
@@ -52,7 +52,7 @@ func (d *Rider) UpdateRider(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		Rider model.Rider `json:"rider"`
 	}{
 		Rider: rider,
@@ -76,7 +76,7 @@ func (d *Rider) SignInRider(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// サインイン成功
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		Rider model.Rider `json:"rider"`
 	}{
 		Rider: *rider,
@@ -104,7 +104,7 @@ func (d *Rider) SignUpRider(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		ID int64 `json:"id"`
 	}{
 		ID: id,
