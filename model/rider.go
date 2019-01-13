@@ -1,6 +1,8 @@
 package model
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 type Rider struct {
 	ID        int64  `db:"id" json:"id"`
@@ -10,6 +12,7 @@ type Rider struct {
 	Major     string `db:"major" json:"major"`
 	Mail      string `db:"mail" json:"mail"`
 	Phone     string `db:"phone" json:"phone"`
+	ImageUrl  string `db:"image_url" json:"image_url"`
 }
 
 func RiderOne(db *sql.DB, id int64) (*Rider, error) {
@@ -23,6 +26,7 @@ func RiderOne(db *sql.DB, id int64) (*Rider, error) {
 		&rider.Major,
 		&rider.Mail,
 		&rider.Phone,
+		&rider.ImageUrl,
 	); err != nil {
 		return nil, err
 	}
@@ -41,6 +45,7 @@ func RiderOneWithMail(db *sql.DB, mail string) (*Rider, error) {
 		&rider.Major,
 		&rider.Mail,
 		&rider.Phone,
+		&rider.ImageUrl,
 	); err != nil {
 		return nil, err
 	}
@@ -49,8 +54,8 @@ func RiderOneWithMail(db *sql.DB, mail string) (*Rider, error) {
 }
 
 func (d *Rider) Update(db *sql.DB) (sql.Result, error) {
-	result, err := db.Exec("UPDATE riders SET first_name=?, last_name=?, grade=?, major=?, mail=?, phone=? WHERE id = ?",
-		d.FirstName, d.LastName, d.Grade, d.Major, d.Mail, d.Phone, d.ID)
+	result, err := db.Exec("UPDATE riders SET first_name=?, last_name=?, grade=?, major=?, mail=?, phone=?, image_url=? WHERE id = ?",
+		d.FirstName, d.LastName, d.Grade, d.Major, d.Mail, d.Phone, d.ImageUrl, d.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -59,9 +64,9 @@ func (d *Rider) Update(db *sql.DB) (sql.Result, error) {
 }
 
 func (d *Rider) Insert(db *sql.DB) (sql.Result, error) {
-	result, err := db.Exec("INSERT INTO riders (first_name, last_name, grade, major, mail, phone) values"+
-		" (?, ?, ?, ?, ?, ?) ",
-		d.FirstName, d.LastName, d.Grade, d.Major, d.Mail, d.Phone)
+	result, err := db.Exec("INSERT INTO riders (first_name, last_name, grade, major, mail, phone, image_url) values"+
+		" (?, ?, ?, ?, ?, ?, ?) ",
+		d.FirstName, d.LastName, d.Grade, d.Major, d.Mail, d.Phone, d.ImageUrl)
 	if err != nil {
 		return nil, err
 	}
