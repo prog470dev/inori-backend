@@ -14,6 +14,7 @@ type Driver struct {
 	Phone     string `db:"phone" json:"phone"`
 	CarColor  string `db:"car_color" json:"car_color"`
 	CarNumber string `db:"car_number" json:"car_number"`
+	ImageUrl  string `db:"image_url" json:"image_url"`
 }
 
 func DriverOne(db *sql.DB, id int64) (*Driver, error) {
@@ -29,6 +30,7 @@ func DriverOne(db *sql.DB, id int64) (*Driver, error) {
 		&driver.Phone,
 		&driver.CarColor,
 		&driver.CarNumber,
+		&driver.ImageUrl,
 	); err != nil {
 		return nil, err
 	}
@@ -49,6 +51,7 @@ func DriverOneWithMail(db *sql.DB, mail string) (*Driver, error) {
 		&driver.Phone,
 		&driver.CarColor,
 		&driver.CarNumber,
+		&driver.ImageUrl,
 	); err != nil {
 		return nil, err
 	}
@@ -57,8 +60,17 @@ func DriverOneWithMail(db *sql.DB, mail string) (*Driver, error) {
 }
 
 func (d *Driver) Update(db *sql.DB) (sql.Result, error) {
-	result, err := db.Exec("UPDATE drivers SET first_name=?, last_name=?, grade=?, major=?, mail=?, phone=?, car_color=?, car_number=? WHERE id = ?",
-		d.FirstName, d.LastName, d.Grade, d.Major, d.Mail, d.Phone, d.CarColor, d.CarNumber, d.ID)
+	result, err := db.Exec("UPDATE drivers SET first_name=?, last_name=?, grade=?, major=?, mail=?, phone=?, car_color=?, car_number=?, image_url=? WHERE id = ?",
+		d.FirstName, d.LastName, d.Grade, d.Major, d.Mail, d.Phone, d.CarColor, d.CarNumber, d.ImageUrl, d.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (d *Driver) UpdateImage(db *sql.DB) (sql.Result, error) {
+	result, err := db.Exec("UPDATE drivers SET image_url=? WHERE id = ?", d.ImageUrl, d.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -67,9 +79,9 @@ func (d *Driver) Update(db *sql.DB) (sql.Result, error) {
 }
 
 func (d *Driver) Insert(db *sql.DB) (sql.Result, error) {
-	result, err := db.Exec("INSERT INTO drivers (first_name, last_name, grade, major, mail, phone, car_color, car_number) values"+
-		" (?, ?, ?, ?, ?, ?, ?, ?) ",
-		d.FirstName, d.LastName, d.Grade, d.Major, d.Mail, d.Phone, d.CarColor, d.CarNumber)
+	result, err := db.Exec("INSERT INTO drivers (first_name, last_name, grade, major, mail, phone, car_color, car_number, image_url) values"+
+		" (?, ?, ?, ?, ?, ?, ?, ?, ?) ",
+		d.FirstName, d.LastName, d.Grade, d.Major, d.Mail, d.Phone, d.CarColor, d.CarNumber, d.ImageUrl)
 	if err != nil {
 		return nil, err
 	}

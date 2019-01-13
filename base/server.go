@@ -101,6 +101,8 @@ func (s *Server) Route() *mux.Router {
 	r.HandleFunc("/drivers/{driver_id:[0-9]+}", middle(driver.GetDriverDetail)).Methods("GET")
 	/** Driver: 更新 **/
 	r.HandleFunc("/drivers/{driver_id:[0-9]+}", middle(driver.UpdateDriver)).Methods("PUT")
+	/** Driver: 画像設定 **/
+	r.HandleFunc("/drivers/{driver_id:[0-9]+}/image", middle(driver.PostImage)).Methods("POST")
 
 	/** Rider: サインアップ **/
 	r.HandleFunc("/riders/signup", middle(rider.SignUpRider)).Methods("POST")
@@ -110,6 +112,8 @@ func (s *Server) Route() *mux.Router {
 	r.HandleFunc("/riders/{rider_id:[0-9]+}", middle(rider.GetRiderDetail)).Methods("GET")
 	/** Rider: 更新 **/
 	r.HandleFunc("/riders/{rider_id:[0-9]+}", middle(rider.UpdateRider)).Methods("PUT")
+	/** Rider: 画像設定 **/
+	r.HandleFunc("/riders/{rider_id:[0-9]+}/image", middle(rider.PostImage)).Methods("POST")
 
 	/** Offer: 追加**/
 	r.HandleFunc("/offers", middle(offer.CreateOffer)).Methods("POST")

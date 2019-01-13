@@ -18,11 +18,11 @@ migrate/init:
 	mysql -u root -h localhost --protocol tcp -p$(DB_PASSWORD) < "migrations/1_add_time_up.sql"
 	mysql -u root -h localhost --protocol tcp -p$(DB_PASSWORD) < "migrations/2_tokens_init_up.sql"
 	mysql -u root -h localhost --protocol tcp -p$(DB_PASSWORD) < "migrations/3_demand_init_up.sql"
-	# 確認
-	mysql -u root -h localhost --protocol tcp -e "show tables from $(DB_NAME)" -p$(DB_PASSWORD)
+	mysql -u root -h localhost --protocol tcp -p$(DB_PASSWORD) < "migrations/4_add_profile_image_up.sql"
 
 migrate/down:
 	# TODO: マイグレーション(down)
+	mysql -u root -h localhost --protocol tcp -p$(DB_PASSWORD) < "migrations/4_add_profile_image_down.sql"
 	mysql -u root -h localhost --protocol tcp -p$(DB_PASSWORD) < "migrations/3_demand_init_down.sql"
 	mysql -u root -h localhost --protocol tcp -p$(DB_PASSWORD) < "migrations/2_tokens_init_down.sql"
 	mysql -u root -h localhost --protocol tcp -p$(DB_PASSWORD) < "migrations/1_add_time_down.sql"

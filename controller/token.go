@@ -43,7 +43,7 @@ func (t *Token) RegisterPushTokenDriver(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	JSON(w, http.StatusOK, b)
+	_ = JSON(w, http.StatusOK, b)
 }
 
 func (t *Token) RegisterPushTokenRider(w http.ResponseWriter, r *http.Request) {
@@ -73,5 +73,5 @@ func (t *Token) RegisterPushTokenRider(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JSON(w, http.StatusOK, b)
+	_ = JSON(w, http.StatusOK, b)
 }

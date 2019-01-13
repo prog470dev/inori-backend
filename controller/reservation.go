@@ -43,7 +43,7 @@ func (re *Reservation) GetRiderReservations(w http.ResponseWriter, r *http.Reque
 		reserve.DepartureTime = t
 	}
 
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		Reservations []model.Reservation `json:"reservations"`
 	}{
 		Reservations: reservations,
@@ -74,7 +74,7 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 	// 満員（クライアント側の同期がリアルタイムやられていれば基本発生しない）
 	log.Println(len(reservations), int(offer.RiderCapacity))
 	if len(reservations) == int(offer.RiderCapacity) {
-		JSON(w, http.StatusBadRequest, struct {
+		_ = JSON(w, http.StatusBadRequest, struct {
 			Message string `json:"message"`
 		}{
 			Message: "no capacity",
@@ -101,7 +101,7 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 	//プッシュ通知 (ドライバ向け)
 	token, err := model.TokenOneDriver(re.DB, offer.DriverID)
 	if err != nil {
-		JSON(w, http.StatusOK, struct {
+		_ = JSON(w, http.StatusOK, struct {
 			ID      int64  `json:"id"`
 			Message string `json:"message"`
 		}{
@@ -119,7 +119,7 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 	}
 	err = SendPushMessage(pushData)
 	if err != nil {
-		JSON(w, http.StatusOK, struct {
+		_ = JSON(w, http.StatusOK, struct {
 			ID      int64  `json:"id"`
 			Message string `json:"message"`
 		}{
@@ -129,7 +129,7 @@ func (re *Reservation) CreateReservation(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		ID int64 `json:"id"`
 	}{
 		ID: id,
@@ -158,7 +158,7 @@ func (re *Reservation) CancelReservation(w http.ResponseWriter, r *http.Request)
 	//プッシュ通知 (ドライバ向け)
 	offer, err := model.OfferOne(re.DB, reservation.OfferID)
 	if err != nil {
-		JSON(w, http.StatusOK, struct {
+		_ = JSON(w, http.StatusOK, struct {
 			ID      int64  `json:"id"`
 			Message string `json:"message"`
 		}{
@@ -169,7 +169,7 @@ func (re *Reservation) CancelReservation(w http.ResponseWriter, r *http.Request)
 	}
 	token, err := model.TokenOneDriver(re.DB, offer.DriverID)
 	if err != nil {
-		JSON(w, http.StatusOK, struct {
+		_ = JSON(w, http.StatusOK, struct {
 			ID      int64  `json:"id"`
 			Message string `json:"message"`
 		}{
@@ -187,7 +187,7 @@ func (re *Reservation) CancelReservation(w http.ResponseWriter, r *http.Request)
 	}
 	err = SendPushMessage(pushData)
 	if err != nil {
-		JSON(w, http.StatusOK, struct {
+		_ = JSON(w, http.StatusOK, struct {
 			ID      int64  `json:"id"`
 			Message string `json:"message"`
 		}{
@@ -197,7 +197,7 @@ func (re *Reservation) CancelReservation(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		ID int64 `json:"id"`
 	}{
 		ID: reservationID,

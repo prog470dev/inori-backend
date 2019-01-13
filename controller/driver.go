@@ -1,10 +1,16 @@
 package controller
 
 import (
+	"bytes"
 	"database/sql"
+	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/olahol/go-imageupload"
 	"github.com/prog470dev/inori-backend/model"
+	"golang.org/x/crypto/bcrypt"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -27,7 +33,7 @@ func (d *Driver) GetDriverDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		Driver model.Driver `json:"driver"`
 	}{
 		Driver: *driver,
@@ -54,7 +60,7 @@ func (d *Driver) UpdateDriver(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		Driver model.Driver `json:"driver"`
 	}{
 		Driver: driver,
@@ -77,8 +83,7 @@ func (d *Driver) SignInDriver(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// サインイン成功
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		Driver model.Driver `json:"driver"`
 	}{
 		Driver: *driver,
@@ -106,9 +111,77 @@ func (d *Driver) SignUpDriver(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JSON(w, http.StatusOK, struct {
+	_ = JSON(w, http.StatusOK, struct {
 		ID int64 `json:"id"`
 	}{
 		ID: id,
+	})
+}
+
+//TODO: driverとriderの重複を取り除く
+func (d *Driver) PostImage(w http.ResponseWriter, r *http.Request) {
+	driverID, err := strconv.ParseInt(mux.Vars(r)["driver_id"], 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	//存在しないdriverを弾く
+	driver, err := model.DriverOne(d.DB, driverID)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	_, fileHeader, err := r.FormFile("image")
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	file, err := imageupload.Process(r, "image")
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	fileName := fileHeader.Filename
+
+	// 名前のハッシュ化
+	converted, err := bcrypt.GenerateFromPassword([]byte(fileName), 10)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	fileName = hex.EncodeToString(converted[:]) + ".jpg"
+
+	thumb, err := imageupload.ThumbnailJPEG(file, 512, 512, 85)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	re := io.NewSectionReader(bytes.NewReader(thumb.Data), 0, int64(len(thumb.Data)))
+	f := sectionReadCloser{re}
+
+	//アップロード
+	url, err := AddFileToS3(fileName, f)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	//driver情報の更新（更新までサーバ側でやる）
+	driver.ImageUrl = url
+	_, err = driver.UpdateImage(d.DB)
+	if err != nil {
+		//
+		fmt.Println(err)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_ = JSON(w, http.StatusOK, struct {
+		ImageUrl string `json:"image_url"`
+	}{
+		ImageUrl: url,
 	})
 }
